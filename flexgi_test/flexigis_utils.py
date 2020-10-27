@@ -89,22 +89,22 @@ def compute_area(dataset, width):
 def filter_lines(shp_file, out_dir):
 	layer = QgsVectorLayer(shp_file, "", 'ogr')
 	highway_lines = {'living_street', 'motorway', 'pedestrian', 'primary', 'secondary', 'service', 'tertiary', 'trunk',
-                  'motorway_link', 'primary_link', 'secondary_link',
-                  'tertiary_link', 'trunk_link'}
+					'motorway_link', 'primary_link', 'secondary_link',
+					'tertiary_link', 'trunk_link'}
 	width = [7.5, 15.50, 7.5, 10.5, 9.5, 7.5, 9.5, 9.5, 6.5, 6.5, 6.5, 6.5, 6.5]
 
 	highway_width = dict(zip(highway_lines, width))
 
 	osm_id = [
-	    feature["osm_id"]
-	    for feature in layer.getFeatures()
-	    if feature["highway"] in highway_lines
+		feature["osm_id"]
+		for feature in layer.getFeatures()
+		if feature["highway"] in highway_lines
 	]
 
 	highway = [
-	    feature["highway"]
-	    for feature in layer.getFeatures()
-	    if feature["highway"] in highway_lines
+		feature["highway"]
+		for feature in layer.getFeatures()
+		if feature["highway"] in highway_lines
 	]
 
 	crsSrc = QgsCoordinateReferenceSystem(4326)
@@ -181,7 +181,7 @@ def filter_squares(shp_file, out_dir):
 		'osm_id': osm_id,
 		'osm_way_id': osm_way_id,
 		'other_tags': other_tags,
-		'Area': Area,
+		'area': Area,
 		'geometry': geom2
 	    }
 	)
@@ -216,20 +216,84 @@ def filter_squares(shp_file, out_dir):
 	highway_shapes_df = highway_shapes_df.sort_values("highway")
 	highway_shapes_df = highway_shapes_df.reset_index()
 	highway_shapes_df = highway_shapes_df[[
-	    "osm_id", "osm_way_id", "highway",  "Area", "geometry"]]
+	    "osm_id", "osm_way_id", "highway",  "area", "geometry"]]
 
 	highway_shapes_df.to_csv(os.path.join(out_dir, "highway_squares.csv"))
 
-def shape_to_csv(shapefile_dir):
-    dir_path = shapefile_dir
-    dir_names = glob.glob(os.path.join(dir_path, "*"))
+# convert csv to shapefile
+def shape_to_csv(dir_path, layer_name):
+	in_csvfile = os.path.join(dir_path, layer_name)
+	out_shpfile = os.path.join(dir_path, os.path.splitext(in_csvfile)[0])
+	result = subprocess.run(["ogr2ogr", "-oo", "GEOM_POSSIBLE_NAMES=geometry*", "-f", "ESRI Shapefile", str(out_shpfile)+".shp", str(in_csvfile)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    for i in dir_names:
-        j = gpd.read_file(os.path.join(i, str(os.path.basename(i))+".shp"))
-        j.to_csv(os.path.join(
-            i, str(os.path.basename(i))+".csv"), encoding="utf-8")
 
 def csvLayerNames(layer_path):
 	layer_names = glob.glob(os.path.join(layer_path, "*.csv"))
 	xx = [os.path.basename(i) for i in layer_names]
 	return xx
+
+
+# simulate street light electrcity demand
+def streetLightDemnd(input_path, input_path2, output_path):
+    """Get standard load profile."""
+    standardLoad = pd.read_csv(input_path)
+    # SL1: All urban lights are operated as
+    # - evening (16:15) - midnight (00:00) => 'On'
+    # - midnight (00:15) - early morning  (05:15) => 'Off'
+    #  - Early morning (05:30 )- morning (09:00) => 'On'
+    SL1 = standardLoad['SB1'] / 1000
+    # All urban roads are illuminated all night
+    SL2 = standardLoad['SB2'] / 1000
+    x_sl = 4 / 1000
+    timestamp = standardLoad['Zeitstempel']
+    # get planet OSM data for highway (line and polygon)
+    osmLines = pd.read_csv(os.path.join(input_path2, 'highway_lines.csv'))
+    osmSquares = pd.read_csv(os.path.join(input_path2, 'highway_squares.csv'))
+    osmData = pd.concat([osmLines[["highway", "area"]], osmSquares[["highway", "area"]]], ignore_index=True)
+    # for secenario 1 & 2
+    osmArea = osmData["area"].sum()
+    # scenario 3 => main roads only for all night
+    mainRoads = ['living_street', 'motorway', 'pedestrian', 'primary',
+                    'secondary', 'service', 'tertiary', 'trunk']
+    mainRoadsArea = osmLines[osmLines["highway"].
+                                        isin(mainRoads)]["area"].sum()
+    # scenario 4 => minus the selected main roads
+    # operated using SL1 (on and off)
+    notMainRoadsArea = osmData[~osmData["highway"].
+                                            isin(mainRoads)]["area"].sum()
+
+    _streetLoad_ = []
+    fname = open(os.path.join(output_path,
+                                "streetlight_load.csv"), 'w')
+    fname.write('TIME;SB1[kWh];SB2[kWh];SB2_mainroad[kWh];SB1_rest[kWh]\n')
+    for i, row in standardLoad.iterrows():
+        row = str(timestamp[i]) + ';' + \
+            str(osmArea*SL1[i]*x_sl) + ';' +\
+            str(osmArea*SL2[i]*x_sl) + ';' +\
+            str(mainRoadsArea*SL2[i]*x_sl) + ';' +\
+            str(notMainRoadsArea*SL1[i]*x_sl) + '\n'
+        _streetLoad_.append(row)
+    fname.writelines(_streetLoad_)
+    fname.close()
+
+
+def optimizationCommodities(input_path, input_path2, output_path):
+    """Get solar data."""
+    # demand and supply
+    pv = pd.read_csv(input_path, parse_dates=True)
+    wind = pd.read_csv(input_path2, parse_dates=True)
+
+    wind['pv'] = pv['pv']
+    feedin = wind
+    df6 = pd.read_csv(os.path.join(
+        output_path, "streetlight_load.csv"),
+        delimiter=";", index_col='TIME', parse_dates=True)
+
+    df6 = df6.iloc[0:8760]  # TODO: fix index
+    feedin['demand_SB1'] = df6['SB1[kWh]'].values
+    feedin['demand_SB2'] = df6['SB2[kWh]'].values
+    df6['SB2/SB1[kWh]'] = df6['SB2_mainroad[kWh]'] + \
+         df6['SB1_rest[kWh]']
+    feedin['demand_SB2_SB1'] = df6['SB2/SB1[kWh]'].values
+    feedin.to_csv(os.path.join(
+        output_path, 'optimization-commodities.csv'))

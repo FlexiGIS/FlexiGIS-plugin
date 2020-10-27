@@ -9,7 +9,7 @@
         begin                : 2020-09-16
         git sha              : $Format:%H$
         copyright            : (C) 2020 by chinonso
-        email                : unaichi.chinonso@gmail.com
+        email                : chinonso.unaichi@dlr.de
  ***************************************************************************/
 
 /***************************************************************************
@@ -37,7 +37,7 @@ from .resources import *
 # Import the code for the dialog
 from .flexgi_test_dialog import flexgi_testDialog, FilterPBF_Dialog, Geoprocess_Dialog, Simulate_Dialog
 from .flexigis_utils import filter_pbf_with_poly, osm_convert, osm_filter, osm_shapefile
-from .flexigis_utils import filter_lines, filter_squares, csvLayerNames
+from .flexigis_utils import filter_lines, filter_squares, csvLayerNames, shape_to_csv, streetLightDemnd, optimizationCommodities
 
 
 class flexgi_test:
@@ -286,7 +286,7 @@ class flexgi_test:
             self.out_dir = os.path.splitext(self.dlg2.lineEdit1_2.text())[0]
             self.out_dir = os.path.splitext(self.out_dir)[0]
             if Path(self.out_dir).exists():
-                pass
+                self.dlg2.comboBox2_2.addItems([layer for layer in csvLayerNames(self.out_dir)])
             else:
                 os.mkdir(self.out_dir)
             self.dlg2.lineEdit2_2.setText(self.out_dir)
@@ -337,10 +337,104 @@ class flexgi_test:
             _ = msg.exec_()
         else:
             self.iface.messageBar().pushMessage(
-                "Filter/Geoprocessing for this tag is under developement", level=Qgis.Information, duration=4)
-    
+                "Filter/Geoprocessing for this tag is under developement", level=Qgis.Info, duration=4)  
+
+    def checkBox_click(self):
+        if self.dlg2.checkBox.isChecked():
+            self.dlg2.checkBox_2.setChecked(False)
+        if self.dlg2.comboBox2_2.currentText() != "":
+            self.dlg2.b4_2.setEnabled(bool(self.dlg2.lineEdit3_2.text()))
+
+    def checkBox2_click(self):
+        if self.dlg2.checkBox_2.isChecked():
+            self.dlg2.checkBox.setChecked(False)
+        if self.dlg2.comboBox2_2.currentText() != "":
+            self.dlg2.b4_2.setEnabled(bool(self.dlg2.lineEdit3_2.text()))
+
     def on_click_b4_2(self):
-        pass
+        if self.dlg2.checkBox.isChecked():
+            dir_name = self.dlg2.lineEdit3_2.text()
+            layer_name = self.dlg2.comboBox2_2.currentText()
+            shape_to_csv(dir_name, layer_name)
+            self.iface.messageBar().pushMessage("shapefile succefully genrated! see output in {}".format(str(dir_name)), level=Qgis.Success, duration=4)            
+        else:
+            self.iface.messageBar().pushMessage("csv to map tool is under developement", level=Qgis.Info, duration=4)  
+
+
+    # Window 3 >>
+    def selectSLP(self):
+        file_extentsion = "csv(*.csv)"
+        input_file = QFileDialog.getOpenFileName(
+            self.dlg3, "Select input file", "", file_extentsion)
+        stl_csv = input_file[0]
+        self.dlg3.lineEdit1_3.setText(stl_csv)
+
+    def selectPV(self):
+        file_extentsion = "csv(*.csv)"
+        input_file = QFileDialog.getOpenFileName(
+            self.dlg3, "Select input file", "", file_extentsion)
+        stl_csv = input_file[0]
+        self.dlg3.lineEdit2_3.setText(stl_csv)
+
+    def selectWind(self):
+        file_extentsion = "csv(*.csv)"
+        input_file = QFileDialog.getOpenFileName(
+            self.dlg3, "Select input file", "", file_extentsion)
+        stl_csv = input_file[0]
+        self.dlg3.lineEdit3_3.setText(stl_csv)
+
+    def selectLayer_dir(self):
+        input_dir= str(QFileDialog.getExistingDirectory(
+            self.dlg3, "Select Directory"))
+        #stl_csv = input_file
+        self.dlg3.lineEdit5_3.setText(input_dir)    
+
+
+    def on_textchanged_l1_3(self):
+        self.dlg3.b4_3.setEnabled(bool(self.dlg3.lineEdit1_3.text()))
+
+    def on_textchanged_l4_3(self):
+        self.dlg3.b5_3.setEnabled(bool(self.dlg3.lineEdit4_3.text()))
+
+    def on_click_b4_3(self):
+        slp_csv = self.dlg3.lineEdit1_3.text()
+        if os.path.isfile(slp_csv):
+            dir_name = os.path.split(slp_csv)[0]
+            self.dlg3.lineEdit4_3.setText(dir_name)
+            
+        else:
+            self.iface.messageBar().pushMessage(
+                "Input field not a valid file path. Select a valid standard load profile csv file", level=Qgis.Critical, duration=4)  
+    
+    # simulate energy demand for street light
+    def simulateDemand_streetLight(self):
+        slp_path = self.dlg3.lineEdit1_3.text()
+        pv_path = self.dlg3.lineEdit2_3.text()
+        wind_path = self.dlg3.lineEdit3_3.text()
+        in_dir = self.dlg3.lineEdit4_3.text()
+        layer_dir = self.dlg3.lineEdit5_3.text()
+        folder_name = "demand_profile"
+        new_dir = os.path.join(in_dir, folder_name)
+        
+        if Path(new_dir).exists():
+            pass
+        else:
+            os.mkdir(new_dir)
+        if self.dlg3.comboBox1_3.currentText() == "Street light energy demand":
+            if os.path.isfile(slp_path) and os.path.isdir(layer_dir):
+                if pv_path == "" or wind_path == "":
+                    streetLightDemnd(slp_path, layer_dir, new_dir)
+                    self.iface.messageBar().pushMessage("Street light energy demand simulation done!", level=Qgis.Success, duration=4)  
+                elif os.path.isfile(pv_path) and os.path.isfile(wind_path):
+                    streetLightDemnd(slp_path, layer_dir, new_dir)
+                    optimizationCommodities(pv_path, wind_path, new_dir)
+                    self.iface.messageBar().pushMessage("Street light energy demand simulation done!", level=Qgis.Success, duration=4)
+                else:
+                    self.iface.messageBar().pushMessage("Ensure selected file paths exit!", level=Qgis.Critical, duration=4)    
+            else:
+                self.iface.messageBar().pushMessage("Ensure selected file paths and Layer directory path exit!", level=Qgis.Critical, duration=4)
+        else:
+            self.iface.messageBar().pushMessage("Urban infracstructure energy demand simulation too under developement!", level=Qgis.Info, duration=4)
 
     # window Navigations << >>
     def close_widget(self):
@@ -375,6 +469,7 @@ class flexgi_test:
 
             self.dlg1.b3.setEnabled(False)
             self.dlg1.b4.setEnabled(False)
+            self.dlg1.b5.setEnabled(False)
 
             self.dlg1.b1.clicked.connect(self.select_pbf_block1)
             self.dlg1.b2.clicked.connect(self.select_polygon_block1)
@@ -394,8 +489,8 @@ class flexgi_test:
             # self.dlg.lineEdit_5.textChanged.connect(self.on_text_changed_b7)
 
             # self.dlg.b7.clicked.connect(self.on_b7_click)
+
         # window 2
-        
         self.dlg2 = Geoprocess_Dialog()
         self.dlg2.b2_2.setEnabled(False)
         self.dlg2.b3_2.setEnabled(False)
@@ -405,11 +500,24 @@ class flexgi_test:
         self.dlg2.b1_2.clicked.connect(self.select_pbf_block2)
         self.dlg2.b2_2.clicked.connect(self.on_b6_click)
         self.dlg2.b3_2.clicked.connect(self.on_b3_2_click)
-
+        self.dlg2.checkBox.stateChanged.connect(self.checkBox_click)
+        self.dlg2.checkBox_2.stateChanged.connect(self.checkBox2_click)
+        self.dlg2.b4_2.clicked.connect(self.on_click_b4_2)
+        
         # window 3
         self.dlg3 = Simulate_Dialog()
         self.dlg3.b4_3.setEnabled(False)
         self.dlg3.b5_3.setEnabled(False)
+        self.dlg3.b8_3.setEnabled(False)
+        self.dlg3.b1_3.clicked.connect(self.selectSLP)
+        self.dlg3.b2_3.clicked.connect(self.selectPV)
+        self.dlg3.b3_3.clicked.connect(self.selectWind)
+        self.dlg3.b10_3.clicked.connect(self.selectLayer_dir)
+        self.dlg3.lineEdit1_3.textChanged.connect(self.on_textchanged_l1_3)
+        self.dlg3.b4_3.clicked.connect(self.on_click_b4_3)
+        self.dlg3.lineEdit4_3.textChanged.connect(self.on_textchanged_l4_3)
+        self.dlg3.b5_3.clicked.connect(self.simulateDemand_streetLight)
+    
 
         # widgets navigations
         self.dlg1.b7.clicked.connect(self.close_widget)
@@ -419,7 +527,7 @@ class flexgi_test:
         self.dlg2.b8_2.clicked.connect(self.close_widget)
         self.dlg3.b9_3.clicked.connect(self.close_widget)
         self.dlg3.b7_3.clicked.connect(self.previous_widget2)
-    
+
 
         # show the dialog
         self.dlg1.show()

@@ -9,7 +9,7 @@
         begin                : 2020-09-16
         git sha              : $Format:%H$
         copyright            : (C) 2020 by chinonso
-        email                : unaichi.chinonso@gmail.com
+        email                : chinonso.unaichi@dlr.de
  ***************************************************************************/
 
 /***************************************************************************

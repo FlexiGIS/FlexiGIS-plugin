@@ -409,8 +409,8 @@ class flexgi_test:
     # simulate energy demand for street light
     def simulateDemand_streetLight(self):
         slp_path = self.dlg3.lineEdit1_3.text()
-        pv_path = self.dlg3.lineEdit2_3.text()
-        wind_path = self.dlg3.lineEdit3_3.text()
+        wind_path = self.dlg3.lineEdit2_3.text()
+        pv_path = self.dlg3.lineEdit3_3.text()
         in_dir = self.dlg3.lineEdit4_3.text()
         layer_dir = self.dlg3.lineEdit5_3.text()
         folder_name = "demand_profile"

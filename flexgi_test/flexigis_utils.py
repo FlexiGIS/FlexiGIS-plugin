@@ -244,7 +244,7 @@ def streetLightDemnd(input_path, input_path2, output_path):
     SL1 = standardLoad['SB1'] / 1000
     # All urban roads are illuminated all night
     SL2 = standardLoad['SB2'] / 1000
-    x_sl = 4 / 1000
+    x_sl = 0.01464
     timestamp = standardLoad['Zeitstempel']
     # get planet OSM data for highway (line and polygon)
     osmLines = pd.read_csv(os.path.join(input_path2, 'highway_lines.csv'))
@@ -252,6 +252,7 @@ def streetLightDemnd(input_path, input_path2, output_path):
     osmData = pd.concat([osmLines[["highway", "area"]], osmSquares[["highway", "area"]]], ignore_index=True)
     # for secenario 1 & 2
     osmArea = osmData["area"].sum()
+    squaresArea = osmSquares["area"].sum()
     # scenario 3 => main roads only for all night
     mainRoads = ['living_street', 'motorway', 'pedestrian', 'primary',
                     'secondary', 'service', 'tertiary', 'trunk']
@@ -259,19 +260,19 @@ def streetLightDemnd(input_path, input_path2, output_path):
                                         isin(mainRoads)]["area"].sum()
     # scenario 4 => minus the selected main roads
     # operated using SL1 (on and off)
-    notMainRoadsArea = osmData[~osmData["highway"].
+    secondaryRoadsArea = osmLines[~osmLines["highway"].
                                             isin(mainRoads)]["area"].sum()
+    mainRoadandsquareArea = mainRoadsArea + squaresArea
 
     _streetLoad_ = []
     fname = open(os.path.join(output_path,
                                 "streetlight_load.csv"), 'w')
-    fname.write('TIME;SB1[kWh];SB2[kWh];SB2_mainroad[kWh];SB1_rest[kWh]\n')
+    fname.write('TIME;Mode2;Mode1;Mode3\n')
     for i, row in standardLoad.iterrows():
         row = str(timestamp[i]) + ';' + \
             str(osmArea*SL1[i]*x_sl) + ';' +\
             str(osmArea*SL2[i]*x_sl) + ';' +\
-            str(mainRoadsArea*SL2[i]*x_sl) + ';' +\
-            str(notMainRoadsArea*SL1[i]*x_sl) + '\n'
+            str((mainRoadandsquareArea*SL2[i]*x_sl) + (secondaryRoadsArea*SL1[i]*x_sl)) + '\n'
         _streetLoad_.append(row)
     fname.writelines(_streetLoad_)
     fname.close()
@@ -289,11 +290,10 @@ def optimizationCommodities(input_path, input_path2, output_path):
         output_path, "streetlight_load.csv"),
         delimiter=";", index_col='TIME', parse_dates=True)
 
-    df6 = df6.iloc[0:8760]  # TODO: fix index
-    feedin['demand_SB1'] = df6['SB1[kWh]'].values
-    feedin['demand_SB2'] = df6['SB2[kWh]'].values
-    df6['SB2/SB1[kWh]'] = df6['SB2_mainroad[kWh]'] + \
-         df6['SB1_rest[kWh]']
-    feedin['demand_SB2_SB1'] = df6['SB2/SB1[kWh]'].values
+    df6 = df6.iloc[0:len(wind.index)]  # TODO: fix index
+    feedin['demand_Mode2'] = df6['Mode2'].values
+    feedin['demand_Mode1'] = df6['Mode1'].values
+    feedin['demand_Mode3'] = df6['Mode3'].values
+    #feedin['demand_SB2_SB1'] = df6['SB2/SB1[kWh]'].values
     feedin.to_csv(os.path.join(
         output_path, 'optimization-commodities.csv'))

@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/flexgi_test" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>

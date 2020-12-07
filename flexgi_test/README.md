@@ -1,1 +1,0 @@
-This is FlexiGIS-plugin Developement repository

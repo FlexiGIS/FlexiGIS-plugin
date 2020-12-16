@@ -30,7 +30,9 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.core import Qgis
-
+import webbrowser
+from PyQt5.Qt import QApplication, QUrl, QDesktopServices
+import sys
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -189,6 +191,13 @@ class flexgi_test:
 
 # ++++++++++++++++++++custom function begins++++++++++++++++++++++++++++++++++++
     # Block 1 => OSM File Filter
+    def help_page(self):
+	#app = QApplication(sys.argv)
+	#url = QUrl("https://flexigis.readthedocs.io/en/latest/")
+	#QDesktopServices.openUrl(url)
+	webbrowser.open('https://flexigis.readthedocs.io')
+
+
     def on_text_changed_b3(self):
         self.dlg1.b3.setEnabled(bool(self.dlg1.lineEdit1.text())
                                and bool(self.dlg1.lineEdit2.text()))
@@ -488,7 +497,7 @@ class flexgi_test:
             # self.dlg.b6.clicked.connect(self.on_b6_click)
             # self.dlg.lineEdit_5.textChanged.connect(self.on_text_changed_b7)
 
-            # self.dlg.b7.clicked.connect(self.on_b7_click)
+            self.dlg1.b8.clicked.connect(self.help_page)
 
         # window 2
         self.dlg2 = Geoprocess_Dialog()
@@ -503,6 +512,7 @@ class flexgi_test:
         self.dlg2.checkBox.stateChanged.connect(self.checkBox_click)
         self.dlg2.checkBox_2.stateChanged.connect(self.checkBox2_click)
         self.dlg2.b4_2.clicked.connect(self.on_click_b4_2)
+        self.dlg2.b9.clicked.connect(self.help_page)
         
         # window 3
         self.dlg3 = Simulate_Dialog()
@@ -517,6 +527,7 @@ class flexgi_test:
         self.dlg3.b4_3.clicked.connect(self.on_click_b4_3)
         self.dlg3.lineEdit4_3.textChanged.connect(self.on_textchanged_l4_3)
         self.dlg3.b5_3.clicked.connect(self.simulateDemand_streetLight)
+        self.dlg3.b6_3.clicked.connect(self.help_page)
     
 
         # widgets navigations

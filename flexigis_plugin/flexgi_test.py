@@ -30,16 +30,20 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.core import Qgis
+
 import webbrowser
 from PyQt5.Qt import QApplication, QUrl, QDesktopServices
 import sys
+from PyQt5.QtGui import *
+from qgis.PyQt import QtGui
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
 from .flexgi_test_dialog import flexgi_testDialog, FilterPBF_Dialog, Geoprocess_Dialog, Simulate_Dialog
-from .flexigis_utils import filter_pbf_with_poly, osm_convert, osm_filter, osm_shapefile
-from .flexigis_utils import filter_lines, filter_squares, csvLayerNames, shape_to_csv, streetLightDemnd, optimizationCommodities
+from .flexigis_utils import (filter_pbf_with_poly, osm_convert, osm_filter,
+                             osm_shapefile, csvLayerNames, symbolize_layer)
+from .flexigis_utils import (filter_lines, filter_squares, shape_to_csv, streetLightDemnd, optimizationCommodities)
 
 
 class flexgi_test:
@@ -192,10 +196,7 @@ class flexgi_test:
 # ++++++++++++++++++++custom function begins++++++++++++++++++++++++++++++++++++
     # Block 1 => OSM File Filter
     def help_page(self):
-	#app = QApplication(sys.argv)
-	#url = QUrl("https://flexigis.readthedocs.io/en/latest/")
-	#QDesktopServices.openUrl(url)
-	webbrowser.open('https://flexigis.readthedocs.io')
+        webbrowser.open('https://flexigis.readthedocs.io')
 
 
     def on_text_changed_b3(self):
@@ -365,9 +366,13 @@ class flexgi_test:
             dir_name = self.dlg2.lineEdit3_2.text()
             layer_name = self.dlg2.comboBox2_2.currentText()
             shape_to_csv(dir_name, layer_name)
-            self.iface.messageBar().pushMessage("shapefile succefully genrated! see output in {}".format(str(dir_name)), level=Qgis.Success, duration=4)            
+            self.iface.messageBar().pushMessage("shapefile successfully generated! see output in {}".format(str(dir_name)), level=Qgis.Success, duration=4)            
         else:
-            self.iface.messageBar().pushMessage("csv to map tool is under developement", level=Qgis.Info, duration=4)  
+            dir_name = self.dlg2.lineEdit3_2.text()
+            layer_name = self.dlg2.comboBox2_2.currentText()
+            symbolize_layer(dir_name, layer_name)
+            #create_mapLayout(dir_name)
+            self.iface.messageBar().pushMessage("Map layout for loaded layers successfully generated! see output in {}".format(str(dir_name)), level=Qgis.Success, duration=4)
 
 
     # Window 3 >>
@@ -512,7 +517,7 @@ class flexgi_test:
         self.dlg2.checkBox.stateChanged.connect(self.checkBox_click)
         self.dlg2.checkBox_2.stateChanged.connect(self.checkBox2_click)
         self.dlg2.b4_2.clicked.connect(self.on_click_b4_2)
-        self.dlg2.b9.clicked.connect(self.help_page)
+        self.dlg2.b5_2.clicked.connect(self.help_page)
         
         # window 3
         self.dlg3 = Simulate_Dialog()
@@ -551,3 +556,4 @@ class flexgi_test:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
             pass
+

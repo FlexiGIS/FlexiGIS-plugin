@@ -6,10 +6,12 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from qgis.core import *
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QVariant, QPointF, QRectF, QSize
 import qgis
-
-
+from PyQt5.QtGui import *
+from qgis.PyQt import QtGui
+from random import randrange
+from qgis.PyQt.QtGui import QPolygonF, QColor
 # if Path("log").exists():
 #     pass
 # else:
@@ -297,4 +299,133 @@ def optimizationCommodities(input_path, input_path2, output_path):
     #feedin['demand_SB2_SB1'] = df6['SB2/SB1[kWh]'].values
     feedin.to_csv(os.path.join(
         output_path, 'optimization-commodities.csv'))
+
+#********************export layer to map**********************
+
+
+def symbolize_layer(dir_path, layerfile_name):
+    layer_path = os.path.join(dir_path, layerfile_name)
+    file_name = os.path.splitext(layer_path)
+    layer_name = os.path.basename(file_name[0])
+    uri = "file://"+layer_path + \
+        "?type=csv&detectTypes=yes&wktField=geometry&crs=epsg:3857&spatialIndex=no&subsetIndex=no&watchFile=no"
+    vLayer = QgsVectorLayer(uri, str(layer_name), "delimitedtext")
+
+    # display layer on qgis desktop
+    QgsProject.instance().addMapLayer(vLayer)
+
+    # get unique layer
+    layer = qgis.utils.iface.activeLayer()
+    field_names = [field.name() for field in layer.fields()]
+    if 'highway' in field_names:
+        unique_layer = layer.fields().indexFromName('highway')
+    elif 'building' in field_names:
+        unique_layer = layer.fields().indexFromName('building')
+    else:
+        print('Layer field incomplete')
+
+    unique_values = layer.uniqueValues(unique_layer)
+    #fill categories
+    categories = []
+    for unique_value in unique_values:
+        #initialize the default symbol for this geometry
+        symbol = QgsSymbol.defaultSymbol(layer.geometryType())
+
+        # configure symbol layer
+        layer_style = {}
+        layer_style['color'] = '%d, %d, %d' % (
+            randrange(0, 256), randrange(0, 256), randrange(0, 256))
+        layer_style['outline'] = '#000000'
+        symbol_layer = QgsSimpleFillSymbolLayer.create(layer_style)
+
+        # replace default symbol with the configured one
+        if symbol_layer is not None:
+            symbol.changeSymbolLayer(0, symbol_layer)
+
+        # create renderer object
+        category = QgsRendererCategory(unique_value, symbol, str(unique_value))
+        # entry for the list of category items
+        categories.append(category)
+
+    # create renderer object
+    if 'highway' in field_names:
+        renderer = QgsCategorizedSymbolRenderer('highway', categories)
+    elif 'building' in field_names:
+        renderer = QgsCategorizedSymbolRenderer('building', categories)
+    else:
+        print('Layer field incomplete')
+
+    #assign the created renderer to the layer
+    if renderer is not None:
+        layer.setRenderer(renderer)
+
+    layer.triggerRepaint()
+
+
+# def create_mapLayout(out_path):
+# 	layers = {layer for layer in QgsProject.instance().mapLayers().values()}
+# 	project = QgsProject.instance()
+# 	manager = project.layoutManager()
+# 	layoutName = 'layout1'
+# 	layouts_list = manager.printLayouts()
+
+# 	# remove duplicate layouts
+# 	for layout in layouts_list:
+# 		if layout.name() == layoutName:
+# 			manager.removeLayout(layout)
+
+# 	layout = QgsPrintLayout(project)
+# 	layout.initializeDefaults()
+# 	layout.setName(layoutName)
+# 	manager.addLayout(layout)
+
+# 	# create map item in the layout
+# 	map = QgsLayoutItemMap(layout)
+# 	map.setRect(20, 20, 20, 20)
+
+# 	# set map extent
+# 	ms = QgsMapSettings()
+# 	for i in layers:
+# 		ms.setLayers([i])  # layers to be mapped
+# 	rect = QgsRectangle(ms.fullExtent())
+# 	rect.scale(1.0)
+# 	ms.setExtent(rect)
+# 	map.setExtent(rect)
+# 	map.setBackgroundColor(QColor(255, 255, 255, 0))
+# 	layout.addLayoutItem(map)
+# 	map.attemptMove(QgsLayoutPoint(23.626, 7.091, QgsUnitTypes.LayoutMillimeters))
+# 	map.attemptResize(QgsLayoutSize(180, 180, QgsUnitTypes.LayoutMillimeters))
+
+# 	# add legend and scale bar
+# 	legend = QgsLayoutItemLegend(layout)
+# 	legend.setTitle('')
+# 	layerTree = QgsLayerTree()
+# 	for i in layers:
+# 		layerTree.addLayer(i)
+# 	legend.model().setRootGroup(layerTree)
+# 	layout.addLayoutItem(legend)
+# 	legend.attemptMove(QgsLayoutPoint(230, 15, QgsUnitTypes.LayoutMillimeters))
+
+# 	scalebar = QgsLayoutItemScaleBar(layout)
+# 	scalebar.setStyle('Double Box')
+# 	scalebar.setUnits(QgsUnitTypes.DistanceKilometers)
+# 	scalebar.setNumberOfSegments(5)
+# 	scalebar.setNumberOfSegmentsLeft(0)
+# 	scalebar.setUnitsPerSegment(5)
+# 	scalebar.setLinkedMap(map)
+# 	scalebar.setUnitLabel('km')
+# 	scalebar.setFont(QFont('Arial', 14))
+# 	scalebar.update()
+# 	layout.addLayoutItem(scalebar)
+# 	scalebar.attemptMove(QgsLayoutPoint(
+# 		53.143, 187.091, QgsUnitTypes.LayoutMillimeters))
+# 	scalebar.attemptResize(QgsLayoutSize(
+# 		134.753, 12.500, QgsUnitTypes.LayoutMillimeters))
+
+	# export layout to png or pdf
+	#layout = manager.layoutByName(layoutName)
+	#exporter = QgsLayoutExporter(layout)
+	#map_name = os.path.join(out_path,'map.png')
+	#exporter.exportToImage(map_name, QgsLayoutExporter.ImageExportSettings())
+	#exporter.exportToPdf(map_name, QgsLayoutExporter.PdfExportSettings())
 

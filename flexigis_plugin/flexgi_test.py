@@ -335,8 +335,9 @@ class flexgi_test:
             filter_lines(os.path.join(outfile_tag, "lines.shp"), out_file_dirname)
     #         # filter_highway_points(os.path.join(
     #         #     osm_tag, "points.shp"), os.path.join(out_file, "highway_points"))
-            self.dlg2.comboBox2_2.addItems([layer for layer in csvLayerNames(out_file_dirname)])
+            #self.dlg2.comboBox2_2.addItems([layer for layer in csvLayerNames(out_file_dirname)])
             filter_squares(os.path.join(outfile_tag, "multipolygons.shp"), out_file_dirname)
+            self.dlg2.comboBox2_2.addItems([layer for layer in csvLayerNames(out_file_dirname)])
             self.iface.messageBar().pushMessage("Data geoprocessing done.", level=Qgis.Success, duration=4)
 
             msg.setText("Geoprocessing complete")
@@ -434,21 +435,21 @@ class flexgi_test:
             pass
         else:
             os.mkdir(new_dir)
-        if self.dlg3.comboBox1_3.currentText() == "Street light energy demand":
+        if self.dlg3.comboBox1_3.currentText() == "Street light elect. demand":
             if os.path.isfile(slp_path) and os.path.isdir(layer_dir):
                 if pv_path == "" or wind_path == "":
                     streetLightDemnd(slp_path, layer_dir, new_dir)
-                    self.iface.messageBar().pushMessage("Street light energy demand simulation done!", level=Qgis.Success, duration=4)  
+                    self.iface.messageBar().pushMessage("Street light elect. demand simulation done!", level=Qgis.Success, duration=4)  
                 elif os.path.isfile(pv_path) and os.path.isfile(wind_path):
                     streetLightDemnd(slp_path, layer_dir, new_dir)
                     optimizationCommodities(pv_path, wind_path, new_dir)
-                    self.iface.messageBar().pushMessage("Street light energy demand simulation done!", level=Qgis.Success, duration=4)
+                    self.iface.messageBar().pushMessage("Street light elect. demand simulation done!", level=Qgis.Success, duration=4)
                 else:
                     self.iface.messageBar().pushMessage("Ensure selected file paths exit!", level=Qgis.Critical, duration=4)    
             else:
                 self.iface.messageBar().pushMessage("Ensure selected file paths and Layer directory path exit!", level=Qgis.Critical, duration=4)
         else:
-            self.iface.messageBar().pushMessage("Urban infracstructure energy demand simulation too under developement!", level=Qgis.Info, duration=4)
+            self.iface.messageBar().pushMessage("Urban infracstructure elect. demand simulation too under developement!", level=Qgis.Info, duration=4)
 
     # window Navigations << >>
     def close_widget(self):

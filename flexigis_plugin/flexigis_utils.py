@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from qgis.core import *
-from qgis.PyQt.QtCore import QVariant, QPointF, QRectF, QSize
+from qgis.PyQt.QtCore import QVariant
 import qgis
 from PyQt5.QtGui import *
 from qgis.PyQt import QtGui
@@ -80,8 +80,9 @@ def compute_area(dataset, width):
     Area = []
     dataset = dataset.set_index(["highway"])
     for key, value in width.items():
-        area = dataset.loc[key]["length"]*value
-        Area.append(area)
+        if key in dataset.index:
+            area = dataset.loc[key]["length"]*value
+            Area.append(area)
     Area = pd.concat(Area)
     dataset["area"] = Area.values
     dataset_new = dataset.reset_index()

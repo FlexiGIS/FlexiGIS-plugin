@@ -8,46 +8,43 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to FlexiGIS’s plugin documentation! &mdash; FlexiGIS QGIS plugin 0.1 documentation</title>
+  <title>FlexiGIS’s QGIS plugin documentation. &mdash; FlexiGIS QGIS plugin 0.1 documentation</title>
   
 
   
   
+  
+  
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="FlexiGIS QGIS plugin 0.1 documentation" href="#"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
+   
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -82,10 +79,18 @@
           
             
             
-                <!-- Local TOC -->
-                <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Welcome to FlexiGIS’s plugin documentation!</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">FlexiGIS’s QGIS plugin documentation.</a></li>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#user-guide">User Guide</a></li>
+<li><a class="reference internal" href="#filter-osm-data">Filter OSM data</a></li>
+<li><a class="reference internal" href="#osm-data-geoprocessing">OSM data geoprocessing</a></li>
+<li><a class="reference internal" href="#simulation-of-urban-infrastructure-electricity-demand">Simulation of urban infrastructure electricity demand</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
 </ul>
 </div>
             
@@ -97,56 +102,171 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="#">FlexiGIS QGIS plugin</a>
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">FlexiGIS QGIS plugin</a>
+        
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="#">Docs</a> &raquo;</li>
-      
-    <li>Welcome to FlexiGIS’s plugin documentation!</li>
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>FlexiGIS’s QGIS plugin documentation.</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-flexigis-s-plugin-documentation">
-<h1>Welcome to FlexiGIS’s plugin documentation!<a class="headerlink" href="#welcome-to-flexigis-s-plugin-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Contents:</p>
+  <div class="section" id="flexigis-s-qgis-plugin-documentation">
+<h1>FlexiGIS’s QGIS plugin documentation.<a class="headerlink" href="#flexigis-s-qgis-plugin-documentation" title="Permalink to this headline">¶</a></h1>
+<p>A QGIS GUI interface for interactive simulation of urban infrastructure electricty demand.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Author</dt>
+<dd class="field-odd"><p>Alaa Alhamwi &lt;<a class="reference external" href="mailto:alaa&#46;alhamwi&#37;&#52;&#48;dlr&#46;de">alaa<span>&#46;</span>alhamwi<span>&#64;</span>dlr<span>&#46;</span>de</a>&gt;, Chinonso Unaichi &lt;<a class="reference external" href="mailto:chinonso&#46;unaichi&#37;&#52;&#48;dlr&#46;de">chinonso<span>&#46;</span>unaichi<span>&#64;</span>dlr<span>&#46;</span>de</a>&gt;</p>
+</dd>
+<dt class="field-even">Organization</dt>
+<dd class="field-even"><p><a class="reference external" href="https://www.dlr.de/ve/">DLR</a> - Institute of Networked Energy Systems, Department of Energy Systems Analysis</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Installation</dt>
+<dd class="field-odd"><p>The FlexiGIS plugin can be downloaded from the QGIS plugin repository through the plugin manager in the QGIS desktop.</p>
+</dd>
+</dl>
+<a class="reference internal image-reference" href="_images/image1.png"><img alt="_images/image1.png" src="_images/image1.png" style="width: 600px;" /></a>
+<dl class="field-list simple">
+<dt class="field-odd">Dependencies</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<ul class="simple">
+<li><p>QGIS 3.04 and 3.10</p></li>
+<li><p>Python &gt;=3.5</p></li>
+<li><p>pandas</p></li>
+<li><p>Gdal (ogr)</p></li>
+<li><p>OSMfilter</p></li>
+<li><p>Osmosis</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Setting up plugin environment</dt>
+<dd class="field-odd"><p>Before running the FlexiGIS plugin from the QGIS desktop environment, ensure all input data are accessible from one folder i.e, create a new folder containing input files such as</p>
+</dd>
+</dl>
+<ul class="simple">
+<li><p>downloaded OSM pbf file of the urban loaction of interest</p></li>
+<li><p>poly file of area interest from the pbf file</p></li>
+<li><p>standard load profile for the simulation of electricity demand as csv</p></li>
+<li><p>RES (wind and solar power) files as csv</p></li>
+</ul>
+</div>
+<div class="section" id="user-guide">
+<h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h1>
+<p>After setting up your environment and installation of the FlexiGIS plugin, the plugin icon can be located on the QGIS menu bar. The plugin
+has three different windows that can be used to execute the three main FlexiGIS functuionalities.</p>
+<ul class="simple">
+<li><p>Filter OSM data</p></li>
+<li><p>OSM data geoprocessing</p></li>
+<li><p>Simulation of urban infrastructure electricity demand</p></li>
+</ul>
+</div>
+<div class="section" id="filter-osm-data">
+<h1>Filter OSM data<a class="headerlink" href="#filter-osm-data" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="_images/image2.png"><img alt="_images/image2.png" src="_images/image2.png" style="width: 600px;" /></a>
+<p>This window allows for the extraction of an area (e.g. City: extratction of Oldenburg osm.pbf from Niedersachsen osm.pbf file) of interest from a osm.pbf file, using the polygon file of that area.
+From the window above</p>
+<ul class="simple">
+<li><p>First select the osm.pbf file, then the polygon file of the area of interest.</p></li>
+<li><p>click the ‘ok’  button to activate the ‘Filter’ button.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Notice an output file path is generated automatically ‘Output filename’, this is the output file name.</p>
+</div>
+</div>
+<div class="section" id="osm-data-geoprocessing">
+<h1>OSM data geoprocessing<a class="headerlink" href="#osm-data-geoprocessing" title="Permalink to this headline">¶</a></h1>
+<p>This window is made up of two sections, the first section further process the output osm.pbf file from the ‘Filter pbf file’ window above. The second section allow user to export the out files (defaults as csv files)
+to shapefiles or visualize directly in the QGIS desktop as maps.</p>
+<a class="reference internal image-reference" href="_images/image3.png"><img alt="_images/image3.png" src="_images/image3.png" style="width: 600px;" /></a>
+<ul class="simple">
+<li><p>select the filtered osm.pbf file generated from the first window</p></li>
+<li><p>choose the Urban infrastructure tag you want to process from the the pbf file</p></li>
+<li><p>click ‘Ok’ to activate the process button</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Notice an output directory path is generated automatically ‘Output file path’, this is where all output files are stored.</p>
+</div>
+<ul class="simple">
+<li><p>select the generated output layer you would like to export to other format</p></li>
+<li><p>check the box ‘shp’ to export output csv file to shapefile or ‘map’ to generate a mape on the QGIS desktop</p></li>
+</ul>
+</div>
+<div class="section" id="simulation-of-urban-infrastructure-electricity-demand">
+<h1>Simulation of urban infrastructure electricity demand<a class="headerlink" href="#simulation-of-urban-infrastructure-electricity-demand" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="_images/image4.png"><img alt="_images/image4.png" src="_images/image4.png" style="width: 600px;" /></a>
+<ul class="simple">
+<li><p>Select the standard load profile csv file</p></li>
+<li><p>wind power csv file</p></li>
+<li><p>PV power csv file</p></li>
+<li><p>Select the directory path where the generated layers are stored ( this is the output path from window 2)</p></li>
+<li><p>click ‘ok’ to activate the ‘Simulate’ button.</p></li>
+</ul>
+<p>The result is a csv file containing time series of the electricity demand of the selected urban infrastructures. For more information on FlexiGIS, jump to the documentation <a class="reference external" href="https://flexigis.readthedocs.io/en/latest/">here</a>.</p>
+</div>
+<div class="section" id="license">
+<h1>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h1>
+<p>The FlexiGIS is licensed under the BSD-3-Clause, “New BSD License” or “Modified BSD License”.
+Redistribution and use in source and binary forms, with or without modification, are permitted.
+For more information concerning the BSD-3C and the description of the terms under which you can use
+the FlexiGIS code, please see <a class="reference external" href="https://opensource.org/licenses/BSD-3-Clause">opensource licenses</a>.</p>
 <div class="toctree-wrapper compound">
 </div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
 </div>
 
 
            </div>
+           
           </div>
           <footer>
   
@@ -155,11 +275,11 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2013, DLR.
+        &copy; Copyright 2013, DLR
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -172,36 +292,15 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="_static/language_data.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

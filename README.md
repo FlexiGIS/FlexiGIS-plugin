@@ -1,4 +1,4 @@
-# FlexiGIS-plugin: A QGIS GUI interface for FlexigIS-light.
+# FlexiGIS-plugin: A QGIS GUI interface for FlexiGIS-light.
 
 
 ## Installation: testing the plugin on Qgis

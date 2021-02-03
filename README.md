@@ -3,7 +3,7 @@
 
 ## FlexiGIS-plugin: 
 
-It is a graphical user interface (GUI) of the FlexiGIS-light model. It extracts the geo-datasets of the street network infrastructure and simulates the electricity consumption of the streetlights in the respective case study. This plugin can be directly installed from the QGIS Plugin Manager within the QGIS Desktop.
+It is a graphical user interface (GUI) of the [FlexiGIS](https://github.com/FlexiGIS) including [FlexiGIS-light](https://github.com/FlexiGIS/FlexiGIS_light). It extracts the geo-datasets of the urban energy infrastructure and simulates the electricity consumption in the respective case study. This plugin can be directly installed from the QGIS Plugin Manager within the QGIS Desktop.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4497218.svg)](https://doi.org/10.5281/zenodo.4497218)
 

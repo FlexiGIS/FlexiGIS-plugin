@@ -1,4 +1,4 @@
-# FlexiGIS-plugin: QGIS GUI interface for FlexiGIS-light.
+# FlexiGIS-Plugin: An open source GUI for the replication of urban energy infrustructure.
 
 
 ## FlexiGIS-plugin: 

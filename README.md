@@ -7,6 +7,9 @@ It is a graphical user interface (GUI) of the FlexiGIS-light model. It extracts 
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4497218.svg)](https://doi.org/10.5281/zenodo.4497218)
 
+.. image:: image1.png
+    :width: 600px
+
 ## Installation: testing the plugin on Qgis
 
 - Clone the plugin repository (since the repo is not public yet, you will be ask for the flexigis github account username and password)

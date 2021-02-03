@@ -37,6 +37,18 @@ To reload plugin go to the plugin reloader icon, click on the drop down menu, se
 
 *NOTE: you can check your QGIS3 python version by running the below commands on your QGIS python terminal
 
+## License
+FlexiGIS-Plugin is licensed under the BSD-3-Clause, "New BSD License" or "Modified BSD License".
+
+The OpenStreetMap (OSM) data is available under the Open Database License (ODbL). A description of the ODbL license is available here. OpenStreetMap cartography is licensed as CC BY-SA. For more information on the copyright of OpenStreetMap please visit here.
+
+## Contact
+Author: Alaa Alhamwi alaa.alhamwi@dlr.de
+
+Project maintainer: Chinonso Unaichi chinonso.unaichi@dlr.de
+
+Organisation: German Aerospace Center (DLR) - Institute of Networked Energy Systems, department for Energy system Analysis(ESY).
+
 ````
 import sys
 

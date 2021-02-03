@@ -40,6 +40,11 @@ To reload plugin go to the plugin reloader icon, click on the drop down menu, se
 
 *NOTE: you can check your QGIS3 python version by running the below commands on your QGIS python terminal
 
+````
+import sys
+sys.version
+````
+
 ## License
 
 FlexiGIS-Plugin is licensed under the [BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause), "New BSD License" or "Modified BSD License".
@@ -65,9 +70,3 @@ Main author: Alaa Alhamwi alaa.alhamwi@dlr.de
 Project maintainer: Chinonso Unaichi chinonso.unaichi@dlr.de
 
 Organisation: German Aerospace Center - DLR Institute of Networked Energy Systems
-
-````
-import sys
-
-sys.version
-````

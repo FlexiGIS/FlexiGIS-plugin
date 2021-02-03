@@ -44,7 +44,7 @@ To reload plugin go to the plugin reloader icon, click on the drop down menu, se
 
 FlexiGIS-Plugin is licensed under the [BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause), "New BSD License" or "Modified BSD License".
 
-Copyright <2020> <DLR Institute of Networked Energy Systems>
+Copyright © 2020 DLR Institute of Networked Energy Systems
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

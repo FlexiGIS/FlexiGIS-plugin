@@ -1,4 +1,4 @@
-# FlexiGIS-Plugin: An open source GUI for the replication of urban energy infrustructure.
+# FlexiGIS-Plugin: An open source GUI for the replication of urban energy infrastructure.
 
 
 ## FlexiGIS-plugin: 

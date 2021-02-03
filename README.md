@@ -7,8 +7,8 @@ It is a graphical user interface (GUI) of the FlexiGIS-light model. It extracts 
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4497218.svg)](https://doi.org/10.5281/zenodo.4497218)
 
-.. image:: image1.png
-    :width: 600px
+![FlexiGIS Simulated Energy_requirements](flexigis_plugin/help/source/image1.png)
+Fig. 1. A screen-shot of the experimental version of the FlexiGIS-GUI as a QGIS plugin.
 
 ## Installation: testing the plugin on Qgis
 

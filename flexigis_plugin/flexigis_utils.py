@@ -119,33 +119,33 @@ def filter_lines(shp_file, out_dir):
 
     crsSrc = QgsCoordinateReferenceSystem(4326)
     crsDrc = QgsCoordinateReferenceSystem(3857)
-     tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
-      geom2 = []
-       length = []
+    tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
+    geom2 = []
+    length = []
 
-        for feature in layer.getFeatures():
-            if feature['highway'] in highway_lines:
-                geom = feature.geometry()
-                geom.transform(tr)
-                your_string = geom.asWkt()
-                length_ = round(geom.length(), 2)
-                geom2.append(your_string)
-                length.append(length_)
+    for feature in layer.getFeatures():
+        if feature['highway'] in highway_lines:
+            geom = feature.geometry()
+            geom.transform(tr)
+            your_string = geom.asWkt()
+            length_ = round(geom.length(), 2)
+            geom2.append(your_string)
+            length.append(length_)
 
-        df_line = pd.DataFrame(
-            {
-                'osm_id': osm_id,
-                'highway': highway,
-                'length': length,
-                'geometry': geom2
-            }
-        )
+    df_line = pd.DataFrame(
+        {
+            'osm_id': osm_id,
+            'highway': highway,
+            'length': length,
+            'geometry': geom2
+        }
+    )
 
-        df_line = compute_area(df_line, highway_width)
-        df_line = df_line.reset_index()
-        df_line = df_line[[
-            "highway", "osm_id", "length", "area", "geometry"]]
-        df_line.to_csv(os.path.join(out_dir, "highway_lines.csv"))
+    df_line = compute_area(df_line, highway_width)
+    df_line = df_line.reset_index()
+    df_line = df_line[[
+        "highway", "osm_id", "length", "area", "geometry"]]
+    df_line.to_csv(os.path.join(out_dir, "highway_lines.csv"))
 
 # *************** Highway square ***********************
 
@@ -176,60 +176,60 @@ def filter_squares(shp_file, out_dir):
     crsSrc = QgsCoordinateReferenceSystem(4326)
     crsDrc = QgsCoordinateReferenceSystem(3857)
     tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
-     geom2 = []
-      Area = []
+    geom2 = []
+    Area = []
 
-       for feature in layer.getFeatures():
-            geom = feature.geometry()
-            geom.transform(tr)
-            your_string = geom.asWkt()
-            area_ = round(geom.area(), 2)
-            geom2.append(your_string)
-            Area.append(area_)
+    for feature in layer.getFeatures():
+        geom = feature.geometry()
+        geom.transform(tr)
+        your_string = geom.asWkt()
+        area_ = round(geom.area(), 2)
+        geom2.append(your_string)
+        Area.append(area_)
 
-        df_square = pd.DataFrame(
-            {
-                'osm_id': osm_id,
-                'osm_way_id': osm_way_id,
-                'other_tags': other_tags,
-                'area': Area,
-                'geometry': geom2
-            }
-        )
+    df_square = pd.DataFrame(
+        {
+            'osm_id': osm_id,
+            'osm_way_id': osm_way_id,
+            'other_tags': other_tags,
+            'area': Area,
+            'geometry': geom2
+        }
+    )
 
-        # filter other_tags attribute to extract highway square features
-        highway_shapes = df_square[df_square["other_tags"] != NULL]
+    # filter other_tags attribute to extract highway square features
+    highway_shapes = df_square[df_square["other_tags"] != NULL]
     # create a clean highway tag column
-        tag_val = []
-        tag = "highway"
-        for i in highway_shapes.other_tags.values:
-            if tag in i:
-                tag_true = 1
-                tag_val.append(tag_true)
-            else:
-                tag_false = 0
-                tag_val.append(tag_false)
-        highway_shapes["bool"] = tag_val
-        highway_shapes = highway_shapes[highway_shapes["bool"] == 1]
-        filter_tag = []
-        for n in highway_shapes["other_tags"].values:
-            ll = n.split(",")
-            for lll in ll:
-                if lll.startswith('"highway"'):
-                    filter_tag.append(lll)
-        feature_list = []
-        for i in filter_tag:
-            m = i.split('"')
-            feature_list.append(m[3])
-        highway_shapes["highway"] = feature_list
-        highway_shapes_df = highway_shapes.loc[highway_shapes["highway"].isin(
-            square_feature)]
-        highway_shapes_df = highway_shapes_df.sort_values("highway")
-        highway_shapes_df = highway_shapes_df.reset_index()
-        highway_shapes_df = highway_shapes_df[[
-            "osm_id", "osm_way_id", "highway",  "area", "geometry"]]
+    tag_val = []
+    tag = "highway"
+    for i in highway_shapes.other_tags.values:
+        if tag in i:
+            tag_true = 1
+            tag_val.append(tag_true)
+        else:
+            tag_false = 0
+            tag_val.append(tag_false)
+    highway_shapes["bool"] = tag_val
+    highway_shapes = highway_shapes[highway_shapes["bool"] == 1]
+    filter_tag = []
+    for n in highway_shapes["other_tags"].values:
+        ll = n.split(",")
+        for lll in ll:
+            if lll.startswith('"highway"'):
+                filter_tag.append(lll)
+    feature_list = []
+    for i in filter_tag:
+        m = i.split('"')
+        feature_list.append(m[3])
+    highway_shapes["highway"] = feature_list
+    highway_shapes_df = highway_shapes.loc[highway_shapes["highway"].isin(
+        square_feature)]
+    highway_shapes_df = highway_shapes_df.sort_values("highway")
+    highway_shapes_df = highway_shapes_df.reset_index()
+    highway_shapes_df = highway_shapes_df[[
+        "osm_id", "osm_way_id", "highway",  "area", "geometry"]]
 
-        highway_shapes_df.to_csv(os.path.join(out_dir, "highway_squares.csv"))
+    highway_shapes_df.to_csv(os.path.join(out_dir, "highway_squares.csv"))
 
 # convert csv to shapefile
 
@@ -312,7 +312,7 @@ def optimizationCommodities(input_path, input_path2, output_path):
     feedin['demand_Mode2'] = df6['Mode2'].values
     feedin['demand_Mode1'] = df6['Mode1'].values
     feedin['demand_Mode3'] = df6['Mode3'].values
-    #feedin['demand_SB2_SB1'] = df6['SB2/SB1[kWh]'].values
+    # feedin['demand_SB2_SB1'] = df6['SB2/SB1[kWh]'].values
     feedin.to_csv(os.path.join(
         output_path, 'optimization-commodities.csv'))
 
@@ -379,6 +379,207 @@ def symbolize_layer(dir_path, layerfile_name):
 
     layer.triggerRepaint()
 
+# ++++++ filter building and landuse
+
+
+def transformGeo(x):
+    crsSrc = QgsCoordinateReferenceSystem(4326)
+    crsDrc = QgsCoordinateReferenceSystem(3857)
+    tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
+    x.transform(tr)
+    return x
+
+
+def computeArea(x):
+    area = round(x.area(), 2)
+    return area
+
+
+def geoToAswkt(x):
+    x = x.asWkt()
+    return x
+
+
+def landuseLayers(landuseShapefile, out_dir):
+    landuseLayers = get_landuseLayers(landuseShapefile)
+    landuseLayers['geometry'] = landuseLayers['geometry'].map(transformGeo)
+    landuseLayers['area'] = landuseLayers['geometry'].map(computeArea)
+    landuseLayers['geometry'] = landuseLayers['geometry'].map(geoToAswkt)
+    landuseLayers.to_csv(os.path.join(out_dir, 'landuse.csv'))
+
+
+def get_landuseLayers(landuseShapefile):
+    landuseLayer = QgsVectorLayer(landuseShapefile, "", 'ogr')
+    # extract landuse features from layers
+    osm_id_ = [feature['osm_id'] for feature in landuseLayer.getFeatures()]
+    osm_way_id = [feature['osm_way_id']
+                  for feature in landuseLayer.getFeatures()]
+    landuse = [feature['landuse'] for feature in landuseLayer.getFeatures()]
+
+    # replace NULL osm_id with the corresponding non NULL values from osm_way_id list
+    osm_id = []
+    for i in range(len(osm_id_)):
+        if osm_id_[i] == NULL:
+            osm_id_[i] = osm_way_id[i]
+        osm_id.append(osm_id_[i])
+
+    # calculate geometry area
+    geometry_ = []
+    area = []
+    for feature in landuseLayer.getFeatures():
+        geom = feature.geometry()
+        geometry_.append(geom)
+
+    # create a dataframe of cleaned landuse layers
+    landuseLayers = pd.DataFrame(
+        {
+            'osm_id': osm_id,
+            'landuse': landuse,
+            'geometry': geometry_
+        }
+    )
+    landuseLayers = landuseLayers.sort_values(by='landuse')
+    cluster = ['farmyard', 'greenhouse_horticulture', 'farmland',
+               'commercial', 'retail', 'industrial', 'residential']
+    landuseLayers = landuseLayers[landuseLayers['landuse'].isin(cluster)]
+    return landuseLayers
+
+
+def get_buildingLayers(buildingShapefile):
+    buildingLayer = QgsVectorLayer(buildingShapefile, "", 'ogr')
+    # extract landuse features from layers
+
+    osm_id_ = [feature['osm_id'] for feature in buildingLayer.getFeatures()]
+    osm_way_id = [feature['osm_way_id']
+                  for feature in buildingLayer.getFeatures()]
+    building = [feature['building'] for feature in buildingLayer.getFeatures()]
+
+    # replace NULL osm_id with the corresponding non NULL values from osm_way_id list
+    osm_id = []
+    for i in range(len(osm_id_)):
+        if osm_id_[i] == NULL:
+            osm_id_[i] = osm_way_id[i]
+        osm_id.append(osm_id_[i])
+
+    # change coordinate refrence system
+    # calculate geometry area
+    geometry_ = []
+    area = []
+    for feature in buildingLayer.getFeatures():
+        geom = feature.geometry()
+        geometry_.append(geom)
+
+    # create a dataframe of cleaned landuse layers
+    buildingLayers = pd.DataFrame(
+        {
+            'osm_id': osm_id,
+            'building': building,
+            'geometry': geometry_
+        }
+    )
+    buildingLayers = buildingLayers.sort_values(by='building')
+    return buildingLayers
+
+
+def getIntersections(df_landuse, df_building):
+    geoms = []
+    for lg in df_landuse.geometry:
+        for bg in df_building.geometry:
+            if bg.intersects(lg):
+                geoms.append(bg)
+
+    resolution = df_building[df_building.geometry.isin(geoms)]
+    return resolution
+
+
+def layersBuildings(landuse, building, type='residential'):
+    if type == 'residential':
+        residentials = getIntersections(landuse, building)
+        return residentials
+    elif type == 'commercial':
+        commercials = getIntersections(landuse, building)
+        return commercials
+    elif type == 'agricultural':
+        agriculturals = getIntersections(landuse, building)
+        return agriculturals
+    elif type == 'industrial':
+        industrials = getIntersections(landuse, building)
+        return industrials
+
+
+def education(buildingShapefile, out_dir):
+    buildings_ = get_buildingLayers(buildingShapefile)
+    educational = buildings_[buildings_.building.isin(
+        ["kindergarten", "school", "university"])]
+    educational['geometry'] = educational['geometry'].map(transformGeo)
+    educational['area'] = educational['geometry'].map(computeArea)
+    educational['geometry'] = educational['geometry'].map(geoToAswkt)
+    educational.to_csv(os.path.join(out_dir, 'educational.csv'))
+
+
+def residential_building(buildingShapefile, landuseShapefile, out_dir):
+    buildings_ = get_buildingLayers(buildingShapefile)
+    buildings = buildings_[~buildings_.building.isin(
+        ["kindergarten", "school", "university"])]
+    landuses = get_landuseLayers(landuseShapefile)
+    landuseResidential = landuses[landuses.landuse == 'residential']
+    residential = layersBuildings(
+        landuseResidential, buildings, type='residential')
+    residential['geometry'] = residential['geometry'].map(transformGeo)
+    residential['area'] = residential['geometry'].map(computeArea)
+    residential['geometry'] = residential['geometry'].map(geoToAswkt)
+    residential.to_csv(os.path.join(out_dir, 'residential.csv'))
+
+
+def commercial_building(buildingShapefile, landuseShapefile, out_dir):
+    buildings_ = get_buildingLayers(buildingShapefile)
+    buildings = buildings_[~buildings_.building.isin(
+        ["kindergarten", "school", "university"])]
+    landuses = get_landuseLayers(landuseShapefile)
+    landusecomm = landuses[landuses.landuse.isin({'commercial', 'retail'})]
+    commercial = layersBuildings(landusecomm, buildings, type='commercial')
+    commercial['geometry'] = commercial['geometry'].map(transformGeo)
+    commercial['area'] = commercial['geometry'].map(computeArea)
+    commercial['geometry'] = commercial['geometry'].map(geoToAswkt)
+    commercial.to_csv(os.path.join(out_dir, 'commercial.csv'))
+
+
+def agricultural_building(buildingShapefile, landuseShapefile, out_dir):
+    buildings_ = get_buildingLayers(buildingShapefile)
+    buildings = buildings_[~buildings_.building.isin(
+        ["kindergarten", "school", "university"])]
+    landuses = get_landuseLayers(landuseShapefile)
+    land_agric = landuses[landuses.landuse.isin(
+        {'farmyard', 'farmland', 'greenhouse_horticulture'})]
+    agricultural = layersBuildings(land_agric, buildings, type='agricultural')
+    agricultural['geometry'] = agricultural['geometry'].map(transformGeo)
+    agricultural['area'] = agricultural['geometry'].map(computeArea)
+    agricultural['geometry'] = agricultural['geometry'].map(geoToAswkt)
+    agricultural.to_csv(os.path.join(out_dir, 'agricultural.csv'))
+
+
+def industrial_building(buildingShapefile, landuseShapefile, out_dir):
+    buildings_ = get_buildingLayers(buildingShapefile)
+    buildings = buildings_[~buildings_.building.isin(
+        ["kindergarten", "school", "university"])]
+    landuses = get_landuseLayers(landuseShapefile)
+    landuseIndustrial = landuses[landuses.landuse == 'industrial']
+    industrial = layersBuildings(
+        landuseIndustrial, buildings, type='industrial')
+    industrial['geometry'] = industrial['geometry'].map(transformGeo)
+    industrial['area'] = industrial['geometry'].map(computeArea)
+    industrial['geometry'] = industrial['geometry'].map(geoToAswkt)
+    industrial.to_csv(os.path.join(out_dir, 'industrial.csv'))
+
+# if __name__=='__main__':
+# landuseShapefile = '/home/ChUnai/Desktop/flexigis_plugin_test/plugin_test_oldenburg/landuse/multipolygons.shp'
+# buildingShapefile = '/home/ChUnai/Desktop/flexigis_plugin_test/plugin_test_oldenburg/buildings/multipolygons.shp'
+# buildings_ = get_buildingLayers(buildingShapefile)
+# landuses = get_landuseLayers(landuseShapefile)
+# buildings = buildings_[~buildings_.building.isin(["kindergarten", "school", "university"])]
+
+# ind = residential_buiding(landuses, buildings)
+
 
 # def create_mapLayout(out_path):
 # 	layers = {layer for layer in QgsProject.instance().mapLayers().values()}
@@ -441,8 +642,8 @@ def symbolize_layer(dir_path, layerfile_name):
 # 		134.753, 12.500, QgsUnitTypes.LayoutMillimeters))
 
     # export layout to png or pdf
-    #layout = manager.layoutByName(layoutName)
-    #exporter = QgsLayoutExporter(layout)
-    #map_name = os.path.join(out_path,'map.png')
-    #exporter.exportToImage(map_name, QgsLayoutExporter.ImageExportSettings())
-    #exporter.exportToPdf(map_name, QgsLayoutExporter.PdfExportSettings())
+    # layout = manager.layoutByName(layoutName)
+    # exporter = QgsLayoutExporter(layout)
+    # map_name = os.path.join(out_path,'map.png')
+    # exporter.exportToImage(map_name, QgsLayoutExporter.ImageExportSettings())
+    # exporter.exportToPdf(map_name, QgsLayoutExporter.PdfExportSettings())

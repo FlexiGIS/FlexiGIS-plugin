@@ -24,6 +24,7 @@
 import os.path
 import subprocess
 import os
+import numpy as np
 from pathlib import Path
 
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
@@ -42,11 +43,9 @@ from .resources import *
 # Import the code for the dialog
 from .flexgi_test_dialog import flexgi_testDialog, FilterPBF_Dialog, Geoprocess_Dialog, Simulate_Dialog
 from .flexigis_utils import (filter_pbf_with_poly, osm_convert, osm_filter,
-                             osm_shapefile, csvLayerNames, symbolize_layer)
-from .flexigis_utils import (filter_lines, filter_squares,
-                             shape_to_csv, streetLightDemnd, optimizationCommodities)
-#from .flexigis_utils import (education, residential_building, commercial_building,
- #                            agricultural_building, industrial_building, landuseLayers)
+                             osm_shapefile, csvLayerNames, symbolize_layer, simulate_urban_demand)
+from .flexigis_utils import (filter_lines, filter_squares, shape_to_csv,
+                             streetLightDemnd, optimizationCommodities, landuseLayers, building_layers, pv_feedin_generation)
 
 
 class flexgi_test:
@@ -197,7 +196,8 @@ class flexgi_test:
 # ++++++++++++++++++++custom function begins++++++++++++++++++++++++++++++++++++
     # Block 1 => OSM File Filter
     def help_page(self):
-        webbrowser.open('https://flexigis.readthedocs.io')
+        webbrowser.open(
+            'https://github.com/FlexiGIS/FlexiGIS-plugin/blob/master/flexigis_plugin/help/source/index.rst#user-guide')
 
     def on_text_changed_b3(self):
         self.dlg1.b3.setEnabled(bool(self.dlg1.lineEdit1.text())
@@ -233,7 +233,7 @@ class flexgi_test:
                 os.path.join(output_file_path, output_name))
         else:
             self.iface.messageBar().pushMessage(
-                "Ensure input files(osm.pbf/poly) are exits", level=Qgis.Warning, duration=4)
+                "Ensure input files (osm.pbf/poly) are valid", level=Qgis.Warning, duration=4)
 
     def popup_button(self, i):
         self.dlg1.lineEdit1.setText("")
@@ -327,6 +327,7 @@ class flexgi_test:
         out_file_dirname = self.dlg2.lineEdit2_2.text()
         osm_tag = self.dlg2.comboBox1_2.currentText()
         outfile_tag = os.path.join(input_file_dirname, osm_tag)
+        landuse_file_tag = os.path.join(input_file_dirname, 'landuse')
 
         # TODO: check out_file and Out_dir ==> make the naming less redundant!
         if osm_tag == "highway":
@@ -345,41 +346,37 @@ class flexgi_test:
             self.iface.messageBar().pushMessage(
                 "Data geoprocessing done.", level=Qgis.Success, duration=4)
 
-            msg.setText("Geoprocessing complete")
-            msg.setIcon(QMessageBox.Information)
-            msg.setDetailedText(
-                "{0} tage geoprocessing clomplete, See {1} directory for output layers".format(str(osm_tag), str(out_file_dirname)))
-            msg.buttonClicked.connect(self.popup_button_block2)
-            _ = msg.exec_()
+        elif osm_tag == "landuse":
+           osm_convert(input_filename, out_file_dirname)
+           osm_filter(out_file_dirname, osm_tag, outfile_tag)
+           osm_shapefile(outfile_tag)
+           landuseLayers(os.path.join(
+               outfile_tag, "multipolygons.shp"), out_file_dirname)
+           self.dlg2.comboBox2_2.addItems(
+               np.unique([layer for layer in csvLayerNames(out_file_dirname)]))
+           self.iface.messageBar().pushMessage(
+               "Landuse data geoprocessing complete.", level=Qgis.Success, duration=4)
 
-        #elif osm_tag == "landuse":
-        #    osm_convert(input_filename, out_file_dirname)
-        #    osm_filter(out_file_dirname, osm_tag, outfile_tag)
-        #    osm_shapefile(outfile_tag)
-        #    landuseLayers(os.path.join(
-        #        outfile_tag, "multipolygons.shp"), out_file_dirname)
+        elif osm_tag == "building":
+           osm_convert(input_filename, out_file_dirname)
+           osm_filter(out_file_dirname, "building", outfile_tag)
+           osm_shapefile(outfile_tag)
 
-        #elif osm_tag == "educational":
-        #    osm_convert(input_filename, out_file_dirname)
-        #    osm_filter(out_file_dirname, "building", outfile_tag)
-        #    osm_shapefile(outfile_tag)
-        #    education(os.path.join(outfile_tag, "multipolygons.shp"),
-         #             out_file_dirname)
+        # landuse
+           osm_convert(input_filename, out_file_dirname)
+           osm_filter(out_file_dirname, "landuse", landuse_file_tag)
+           osm_shapefile(landuse_file_tag)
+
+           building_layers(os.path.join(outfile_tag, "multipolygons.shp"),
+                           os.path.join(landuse_file_tag, "multipolygons.shp"), out_file_dirname)
+           self.dlg2.comboBox2_2.addItems(
+               np.unique([layer for layer in csvLayerNames(out_file_dirname)]))
+           self.iface.messageBar().pushMessage(
+               "Building categories geoprocessing complete.", level=Qgis.Success, duration=4)
         else:
             self.iface.messageBar().pushMessage(
                 "Filter/Geoprocessing for this tag is under developement", level=Qgis.Info, duration=4)
 
-    #    elif osm_tag == "agricultural":
-    #         osm_convert(input_filename, out_file_dirname)
-    #         osm_filter(out_file_dirname, "building", outfile_tag)
-    #         osm_shapefile(outfile_tag)
-
-    #         osm_convert(input_filename, out_file_dirname)
-    #         osm_filter(out_file_dirname, "landuse", outfile_tag)
-    #         osm_shapefile(outfile_tag)
-    #         education(os.path.join(outfile_tag, "multipolygons.shp"), out_file_dirname)
-    #         self.iface.messageBar().pushMessage(
-    #             "Filter/Geoprocessing for this tag is under developement", level=Qgis.Info, duration=4)
 
     def checkBox_click(self):
         if self.dlg2.checkBox.isChecked():
@@ -405,7 +402,7 @@ class flexgi_test:
             layer_name = self.dlg2.comboBox2_2.currentText()
             symbolize_layer(dir_name, layer_name)
             # create_mapLayout(dir_name)
-            self.iface.messageBar().pushMessage("Map layout for loaded layers successfully generated! see output in {}".format(
+            self.iface.messageBar().pushMessage("Map layers successfully generated! see output in {}".format(
                 str(dir_name)), level=Qgis.Success, duration=4)
 
     # Window 3 >>
@@ -433,7 +430,7 @@ class flexgi_test:
 
     def selectLayer_dir(self):
         input_dir = str(QFileDialog.getExistingDirectory(
-            self.dlg3, "Select Directory"))
+            self.dlg3, "Select directory"))
         #stl_csv = input_file
         self.dlg3.lineEdit5_3.setText(input_dir)
 
@@ -484,9 +481,25 @@ class flexgi_test:
             else:
                 self.iface.messageBar().pushMessage(
                     "Ensure selected file paths and Layer directory path exit!", level=Qgis.Critical, duration=4)
-        else:
-            self.iface.messageBar().pushMessage(
-                "Urban infracstructure elect. demand simulation too under developement!", level=Qgis.Info, duration=4)
+
+        elif self.dlg3.comboBox1_3.currentText() == "Urban infrastructure elect. demand":
+            if os.path.isfile(slp_path) and os.path.isdir(layer_dir):
+                if pv_path == "" or wind_path == "":
+                    simulate_urban_demand(slp_path, layer_dir, new_dir)
+                    self.iface.messageBar().pushMessage(
+                        "Urban building electricity demand simulation done!", level=Qgis.Success, duration=4)
+                elif os.path.isfile(pv_path) and os.path.isfile(wind_path):
+                    simulate_urban_demand(slp_path, layer_dir, new_dir)
+                    pv_feedin_generation(
+                        pv_path, wind_path, layer_dir, new_dir)
+                    self.iface.messageBar().pushMessage(
+                        "Urban building electricity demand and renewable generation simulation done!", level=Qgis.Success, duration=4)
+                else:
+                    self.iface.messageBar().pushMessage(
+                        "Ensure selected file paths exit!", level=Qgis.Critical, duration=4)
+            else:
+                self.iface.messageBar().pushMessage(
+                    "Ensure selected file paths and Layer directory path exit!", level=Qgis.Critical, duration=4)
 
     # window Navigations << >>
     def close_widget(self):

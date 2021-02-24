@@ -79,152 +79,110 @@ def compute_area(dataset, width):
 
     """
     Area = []
-    dataset = dataset.set_index(["highway"])
     for key, value in width.items():
-        if key in dataset.index:
-            area = dataset.loc[key]["length"]*value
-            Area.append(area)
-        else:
-            pass
+        area = dataset.loc[key]["length"]*value
+        Area.append(area)
     Area = pd.concat(Area)
     dataset["area"] = Area.values
-    dataset_new = dataset.reset_index()
-    return dataset_new.sort_values("highway")
+    return dataset.sort_values("highway")
 
 
 def filter_lines(shp_file, out_dir):
-	layer = QgsVectorLayer(shp_file, "", 'ogr')
-	highway_lines = {'living_street', 'motorway', 'pedestrian', 'primary', 'secondary', 'service', 'tertiary', 'trunk',
-                  'motorway_link', 'primary_link', 'secondary_link',
-                  'tertiary_link', 'trunk_link'}
-	width = [7.5, 15.50, 7.5, 10.5, 9.5, 7.5, 9.5, 9.5, 6.5, 6.5, 6.5, 6.5, 6.5]
+    layer = QgsVectorLayer(shp_file, "", 'ogr')
+    highway_lines = {'living_street', 'motorway', 'pedestrian', 'primary', 'secondary', 'service', 'tertiary', 'trunk', 'motorway_link', 'primary_link', 'secondary_link', 'tertiary_link', 'trunk_link'}
+    width = [7.5, 15.50, 7.5, 10.5, 9.5, 7.5, 9.5, 9.5, 6.5, 6.5, 6.5, 6.5, 6.5]
 
-	highway_width = dict(zip(highway_lines, width))
+    highway_width = dict(zip(highway_lines, width))
 
-	osm_id = [
-		feature["osm_id"]
-		for feature in layer.getFeatures()
-		if feature["highway"] in highway_lines
-	]
+    osm_id = [ feature["osm_id"] for feature in layer.getFeatures() if feature["highway"] in highway_lines ]
 
-	highway = [
-		feature["highway"]
-		for feature in layer.getFeatures()
-		if feature["highway"] in highway_lines
-	]
+    highway = [feature["highway"] for feature in layer.getFeatures() if feature["highway"] in highway_lines]
 
-	crsSrc = QgsCoordinateReferenceSystem(4326)
-	crsDrc = QgsCoordinateReferenceSystem(3857)
-	tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
-	geom2 = []
-	length = []
+    crsSrc = QgsCoordinateReferenceSystem(4326)
+    crsDrc = QgsCoordinateReferenceSystem(3857)
+    tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
+    geom2 = []
+    length = []
 
-	for feature in layer.getFeatures():
-		if feature['highway'] in highway_lines:
-			geom = feature.geometry()
-			geom.transform(tr)
-			your_string = geom.asWkt()
-			length_ = round(geom.length(), 2)
-			geom2.append(your_string)
-			length.append(length_)
+    for feature in layer.getFeatures():
+        if feature['highway'] in highway_lines:
+            geom = feature.geometry()
+            geom.transform(tr)
+            your_string = geom.asWkt()
+            length_ = round(geom.length(), 2)
+            geom2.append(your_string)
+            length.append(length_)
 
-	df_line = pd.DataFrame(
-	    {
-		'osm_id': osm_id,
-		'highway': highway,
-		'length': length,
-		'geometry': geom2
-	    }
-	)
+    df_line = pd.DataFrame({'osm_id': osm_id, 'highway': highway, 'length': length, 'geometry': geom2})
 
-	df_line = compute_area(df_line, highway_width)
-	df_line = df_line.reset_index()
-	df_line = df_line[[
-            "highway", "osm_id", "length", "area", "geometry"]]
-	df_line.to_csv(os.path.join(out_dir, "highway_lines.csv"))
+    check_features = set(df_line.highway.unique()).intersection(highway_lines)
+    width_dict = {k: highway_width[k] for k in check_features}
+    df_line = df_line.set_index('highway')
+    df_line = compute_area(df_line, width_dict)
+    df_line = df_line.reset_index()
+    df_line = df_line[[
+        "highway", "osm_id", "length", "area", "geometry"]]
+    df_line.to_csv(os.path.join(out_dir, "highway_lines.csv"))
 
 #*************** Highway square ***********************
 
 
 def filter_squares(shp_file, out_dir):
-	layer = QgsVectorLayer(shp_file, "", 'ogr')
-	square_feature = {'crossing', 'footway', 'living_street',
-                   'pedestrian', 'platform', 'residential',
-                   'service', 'traffic_island'
-                   }
-	osm_id = [
-            feature["osm_id"]
-            for feature in layer.getFeatures()
-        ]
+    layer = QgsVectorLayer(shp_file, "", 'ogr')
+    square_feature = {'crossing', 'footway', 'living_street','pedestrian', 'platform', 'residential', 'service', 'traffic_island'}
+    osm_id = [feature["osm_id"] for feature in layer.getFeatures()]
+    osm_way_id = [feature["osm_way_id"] for feature in layer.getFeatures()]
 
-	osm_way_id = [
-		feature["osm_way_id"]
-		for feature in layer.getFeatures()
-	]
+    # get available line features from tag
+    other_tags = [ feature["other_tags"] for feature in layer.getFeatures()]
 
-	# get available line features from tag
-	other_tags = [
-		feature["other_tags"]
-		for feature in layer.getFeatures()
-	]
+    crsSrc = QgsCoordinateReferenceSystem(4326)
+    crsDrc = QgsCoordinateReferenceSystem(3857)
+    tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
+    geom2 = []
+    Area = []
 
-	crsSrc = QgsCoordinateReferenceSystem(4326)
-	crsDrc = QgsCoordinateReferenceSystem(3857)
-	tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
-	geom2 = []
-	Area = []
+    for feature in layer.getFeatures():
+        geom = feature.geometry()
+        geom.transform(tr)
+        your_string = geom.asWkt()
+        area_ = round(geom.area(), 2)
+        geom2.append(your_string)
+        Area.append(area_)
 
-	for feature in layer.getFeatures():
-		geom = feature.geometry()
-		geom.transform(tr)
-		your_string = geom.asWkt()
-		area_ = round(geom.area(), 2)
-		geom2.append(your_string)
-		Area.append(area_)
+    df_square = pd.DataFrame({ 'osm_id': osm_id, 'osm_way_id': osm_way_id, 'other_tags': other_tags, 'area': Area, 'geometry': geom2})
 
-	df_square = pd.DataFrame(
-	    {
-		'osm_id': osm_id,
-		'osm_way_id': osm_way_id,
-		'other_tags': other_tags,
-		'area': Area,
-		'geometry': geom2
-	    }
-	)
-
-	# filter other_tags attribute to extract highway square features
-	highway_shapes = df_square[df_square["other_tags"] != NULL]
+    # filter other_tags attribute to extract highway square features
+    highway_shapes = df_square[df_square["other_tags"] != NULL]
     # create a clean highway tag column
-	tag_val = []
-	tag = "highway"
-	for i in highway_shapes.other_tags.values:
-		if tag in i:
-			tag_true = 1
-			tag_val.append(tag_true)
-		else:
-			tag_false = 0
-			tag_val.append(tag_false)
-	highway_shapes["bool"] = tag_val
-	highway_shapes = highway_shapes[highway_shapes["bool"] == 1]
-	filter_tag = []
-	for n in highway_shapes["other_tags"].values:
-		ll = n.split(",")
-		for lll in ll:
-			if lll.startswith('"highway"'):
-				filter_tag.append(lll)
-	feature_list = []
-	for i in filter_tag:
-		m = i.split('"')
-		feature_list.append(m[3])
-	highway_shapes["highway"] = feature_list
-	highway_shapes_df = highway_shapes.loc[highway_shapes["highway"].isin(
-	    square_feature)]
-	highway_shapes_df = highway_shapes_df.sort_values("highway")
-	highway_shapes_df = highway_shapes_df.reset_index()
-	highway_shapes_df = highway_shapes_df[[
-	    "osm_id", "osm_way_id", "highway",  "area", "geometry"]]
-
-	highway_shapes_df.to_csv(os.path.join(out_dir, "highway_squares.csv"))
+    tag_val = []
+    tag = "highway"
+    for i in highway_shapes.other_tags.values:
+        if tag in i:
+            tag_true = 1
+            tag_val.append(tag_true)
+        else:
+            tag_false = 0
+            tag_val.append(tag_false)
+    highway_shapes["bool"] = tag_val
+    highway_shapes = highway_shapes[highway_shapes["bool"] == 1]
+    filter_tag = []
+    for n in highway_shapes["other_tags"].values:
+        ll = n.split(",")
+        for lll in ll:
+            if lll.startswith('"highway"'):
+                filter_tag.append(lll)
+    feature_list = []
+    for i in filter_tag:
+        m = i.split('"')
+        feature_list.append(m[3])
+        
+    highway_shapes["highway"] = feature_list
+    highway_shapes_df = highway_shapes.loc[highway_shapes["highway"].isin(square_feature)]
+    highway_shapes_df = highway_shapes_df.sort_values("highway")
+    highway_shapes_df = highway_shapes_df.reset_index()
+    highway_shapes_df = highway_shapes_df[["osm_id", "osm_way_id", "highway",  "area", "geometry"]]
+    highway_shapes_df.to_csv(os.path.join(out_dir, "highway_squares.csv"))
 
 # convert csv to shapefile
 

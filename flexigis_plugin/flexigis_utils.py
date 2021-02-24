@@ -84,7 +84,7 @@ def compute_area(dataset, width):
         Area.append(area)
     Area = pd.concat(Area)
     dataset["area"] = Area.values
-    return dataset.sort_values("highway")
+    return dataset
 
 
 def filter_lines(shp_file, out_dir):
@@ -122,6 +122,7 @@ def filter_lines(shp_file, out_dir):
     df_line = df_line.reset_index()
     df_line = df_line[[
         "highway", "osm_id", "length", "area", "geometry"]]
+    df_line = df_line.sort_values("highway")
     df_line.to_csv(os.path.join(out_dir, "highway_lines.csv"))
 
 #*************** Highway square ***********************

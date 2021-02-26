@@ -24,7 +24,6 @@
 import os.path
 import subprocess
 import os
-import numpy as np
 from pathlib import Path
 
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
@@ -296,8 +295,9 @@ class flexgi_test:
             self.out_dir = os.path.splitext(self.dlg2.lineEdit1_2.text())[0]
             self.out_dir = os.path.splitext(self.out_dir)[0]
             if Path(self.out_dir).exists():
-                self.dlg2.comboBox2_2.addItems(
-                    [layer for layer in csvLayerNames(self.out_dir)])
+                if self.dlg2.comboBox2_2.currentText() == "":
+                    self.dlg2.comboBox2_2.addItems(
+                        [layer for layer in csvLayerNames(self.out_dir)])
             else:
                 os.mkdir(self.out_dir)
             self.dlg2.lineEdit2_2.setText(self.out_dir)
@@ -318,64 +318,87 @@ class flexgi_test:
     def on_text_changed_b7(self):
         self.dlg2.b3_2.setEnabled(bool(self.dlg2.lineEdit2_2.text()))
 
-    def on_b3_2_click(self):
-        msg = QMessageBox()
-        msg.setWindowTitle("OSM geoprocessing")
-        input_filename = self.dlg2.lineEdit1_2.text()
-        input_file_dirname = os.path.split(input_filename)[0]
-        # out_file = os.path.basename(self.dlg.lineEdit_5.text())
-        out_file_dirname = self.dlg2.lineEdit2_2.text()
-        osm_tag = self.dlg2.comboBox1_2.currentText()
-        outfile_tag = os.path.join(input_file_dirname, osm_tag)
-        landuse_file_tag = os.path.join(input_file_dirname, 'landuse')
 
-        # TODO: check out_file and Out_dir ==> make the naming less redundant!
-        if osm_tag == "highway":
-            osm_convert(input_filename, out_file_dirname)
-            osm_filter(out_file_dirname, osm_tag, outfile_tag)
-            osm_shapefile(outfile_tag)
-            filter_lines(os.path.join(
-                outfile_tag, "lines.shp"), out_file_dirname)
-    #         # filter_highway_points(os.path.join(
-    #         #     osm_tag, "points.shp"), os.path.join(out_file, "highway_points"))
-            #self.dlg2.comboBox2_2.addItems([layer for layer in csvLayerNames(out_file_dirname)])
-            filter_squares(os.path.join(
-                outfile_tag, "multipolygons.shp"), out_file_dirname)
+def on_b3_2_click(self):
+    msg = QMessageBox()
+    msg.setWindowTitle("OSM geoprocessing")
+    input_filename = self.dlg2.lineEdit1_2.text()
+    input_file_dirname = os.path.split(input_filename)[0]
+    # out_file = os.path.basename(self.dlg.lineEdit_5.text())
+    out_file_dirname = self.dlg2.lineEdit2_2.text()
+    osm_tag = self.dlg2.comboBox1_2.currentText()
+    outfile_tag = os.path.join(input_file_dirname, osm_tag)
+    landuse_file_tag = os.path.join(input_file_dirname, 'landuse')
+
+       #TODO: check out_file and Out_dir ==> make the naming less redundant!
+    if osm_tag == "highway":
+        highway_cv_filenames = ['highway_squares.csv', 'highway_lines.csv']
+        osm_convert(input_filename, out_file_dirname)
+        osm_filter(out_file_dirname, osm_tag, outfile_tag)
+        osm_shapefile(outfile_tag)
+        filter_lines(os.path.join(
+            outfile_tag, "lines.shp"), out_file_dirname)
+        filter_squares(os.path.join(
+            outfile_tag, "multipolygons.shp"), out_file_dirname)
+#         # filter_highway_points(os.path.join(
+#         #     osm_tag, "points.shp"), os.path.join(out_file, "highway_points"))
+        if self.dlg2.comboBox2_2.currentText() == "":
             self.dlg2.comboBox2_2.addItems(
                 [layer for layer in csvLayerNames(out_file_dirname)])
-            self.iface.messageBar().pushMessage(
-                "Data geoprocessing done.", level=Qgis.Success, duration=4)
-
-        elif osm_tag == "landuse":
-           osm_convert(input_filename, out_file_dirname)
-           osm_filter(out_file_dirname, osm_tag, outfile_tag)
-           osm_shapefile(outfile_tag)
-           landuseLayers(os.path.join(
-               outfile_tag, "multipolygons.shp"), out_file_dirname)
-           self.dlg2.comboBox2_2.addItems(
-               np.unique([layer for layer in csvLayerNames(out_file_dirname)]))
-           self.iface.messageBar().pushMessage(
-               "Landuse data geoprocessing complete.", level=Qgis.Success, duration=4)
-
-        elif osm_tag == "building":
-           osm_convert(input_filename, out_file_dirname)
-           osm_filter(out_file_dirname, "building", outfile_tag)
-           osm_shapefile(outfile_tag)
-
-        # landuse
-           osm_convert(input_filename, out_file_dirname)
-           osm_filter(out_file_dirname, "landuse", landuse_file_tag)
-           osm_shapefile(landuse_file_tag)
-
-           building_layers(os.path.join(outfile_tag, "multipolygons.shp"),
-                           os.path.join(landuse_file_tag, "multipolygons.shp"), out_file_dirname)
-           self.dlg2.comboBox2_2.addItems(
-               np.unique([layer for layer in csvLayerNames(out_file_dirname)]))
-           self.iface.messageBar().pushMessage(
-               "Building categories geoprocessing complete.", level=Qgis.Success, duration=4)
+        elif all(item in [self.dlg2.comboBox2_2.itemText(i) for i in range(self.dlg2.comboBox2_2.count())] for item in highway_cv_filenames):
+            pass
         else:
-            self.iface.messageBar().pushMessage(
-                "Filter/Geoprocessing for this tag is under developement", level=Qgis.Info, duration=4)
+            self.dlg2.comboBox2_2.addItems(
+                [layer for layer in csvLayerNames(out_file_dirname) if layer in highway_cv_filenames])
+        self.iface.messageBar().pushMessage(
+            "Highway data geoprocessing complete.", level=Qgis.Success, duration=4)
+
+    elif osm_tag == "landuse":
+        landuse_cv_filenames = ['landuse.csv']
+        osm_convert(input_filename, out_file_dirname)
+        osm_filter(out_file_dirname, osm_tag, outfile_tag)
+        osm_shapefile(outfile_tag)
+        landuseLayers(os.path.join(
+            outfile_tag, "multipolygons.shp"), out_file_dirname)
+
+        if self.dlg2.comboBox2_2.currentText() == "":
+            self.dlg2.comboBox2_2.addItems(
+                [layer for layer in csvLayerNames(out_file_dirname)])
+        elif "landuse.csv" in [self.dlg2.comboBox2_2.itemText(i) for i in range(self.dlg2.comboBox2_2.count())]:
+            pass
+        else:
+            self.dlg2.comboBox2_2.addItems(
+                [layer for layer in csvLayerNames(out_file_dirname) if layer in landuse_cv_filenames])
+        self.iface.messageBar().pushMessage(
+            "Landuse data geoprocessing complete.", level=Qgis.Success, duration=4)
+
+    elif osm_tag == "building":
+        building_cv_filenames = ['agricultural.csv', 'commercial.csv',
+                                    'educational.csv', 'industrial.csv', 'residential.csv']
+        osm_convert(input_filename, out_file_dirname)
+        osm_filter(out_file_dirname, "building", outfile_tag)
+        osm_shapefile(outfile_tag)
+
+    # landuse
+        osm_convert(input_filename, out_file_dirname)
+        osm_filter(out_file_dirname, "landuse", landuse_file_tag)
+        osm_shapefile(landuse_file_tag)
+
+        building_layers(os.path.join(outfile_tag, "multipolygons.shp"),
+                        os.path.join(landuse_file_tag, "multipolygons.shp"), out_file_dirname)
+        if self.dlg2.comboBox2_2.currentText() == "":
+            self.dlg2.comboBox2_2.addItems(
+                [layer for layer in csvLayerNames(out_file_dirname)])
+        elif all(item in [self.dlg2.comboBox2_2.itemText(i) for i in range(self.dlg2.comboBox2_2.count())] for item in building_cv_filenames):
+            pass
+        else:
+            self.dlg2.comboBox2_2.addItems(
+                [layer for layer in csvLayerNames(out_file_dirname) if layer in building_cv_filenames])
+        self.iface.messageBar().pushMessage(
+            "Building categories geoprocessing complete.", level=Qgis.Success, duration=4)
+    else:
+        self.iface.messageBar().pushMessage(
+            "Filter/Geoprocessing for this tag is under developement", level=Qgis.Info, duration=4)
 
 
     def checkBox_click(self):

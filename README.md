@@ -7,10 +7,13 @@ It is a graphical user interface (GUI) of the [FlexiGIS](https://github.com/Flex
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4497218.svg)](https://doi.org/10.5281/zenodo.4497218)
 
-![FlexiGIS Simulated Energy_requirements](flexigis_plugin/help/source/image1.png)
+![FlexiGIS Simulated Energy_requirements](image1.png)
 Fig. 1. A screen-shot of the experimental version of the FlexiGIS-GUI as a QGIS plugin.
 
 ## Installation: testing the plugin on Qgis
+This plugin is not available yet on the QGIS plugin repository, however, it can be install manually in the QGIS desktop by following the steps mentioned below. 
+
+**Note that this plugin has only been tested on the Linux Ubuntu environment. Also for this plugin to work, you need to already have [Osmosis](https://github.com/openstreetmap/osmosis#installation), [OSMfilter](https://wiki.openstreetmap.org/wiki/Osmfilter) and [GDAL](https://gdal.org/download.html) installed in your Linux Ubuntu.**
 
 - Clone the plugin repository (since the repo is not public yet, you will be ask for the flexigis github account username and password)
 
@@ -18,17 +21,17 @@ Fig. 1. A screen-shot of the experimental version of the FlexiGIS-GUI as a QGIS 
 terminal:~$ https://github.com/FlexiGIS/FlexiGIS-plugin.git
 ```
 
-- cd into the FlexiGIS-plugin directory and copy the  *flexigis_plugin* folder to yours QGIS3 python path.
+- cd into the FlexiGIS-plugin directory and copy the  *flexigis* folder to yours QGIS3 python path.
 
 ``` 
-terminal/FlexiGIS-plugin:~$ cp -r flexigis_plugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins
+terminal/FlexiGIS-plugin:~$ cp -r flexigis ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins
 ```
 
 After following the above steps, start your QGIS3 deskop environment. First install plugin reloader, this is used to reload any installed plugin in QGIS. To reload the flexgi_plugin, ensure you can see it on the list of installed plugins in your QGIS3 (Plugin management section).
 
 In your QGIS menu bar go to: plugins > Manage and install plugins > installed (to check installed plugin). To ensure that the newly created plugin is present in the QGIS plugin path.
 
-To reload plugin go to the plugin reloader icon, click on the drop down menu, select configuration, then select the plugin you want to reload. In our case we select the 'flexigis_plugin'. The final hit the reload icon of the plugin reloader. This is done any time the plugin backed or front end codes are edited. See further documentation [here](https://github.com/FlexiGIS/FlexiGIS-plugin/blob/master/flexigis_plugin/help/source/index.rst).
+To reload plugin go to the plugin reloader icon, click on the drop down menu, select configuration, then select the plugin you want to reload. In our case we select the 'flexigis_plugin'. The final hit the reload icon of the plugin reloader. This is done any time the plugin backed or front end codes are edited. See further documentation [here](https://github.com/FlexiGIS/FlexiGIS-plugin/blob/master/flexigis/help/source/index.rst).
 
 ## Dependencies
 
@@ -38,7 +41,7 @@ To reload plugin go to the plugin reloader icon, click on the drop down menu, se
 - osmfilter
 - osmosis
 
-*NOTE: you can check your QGIS3 python version by running the below commands on your QGIS python terminal
+*NOTE: you can check your QGIS3 python version by running the below commands on your QGIS python terminal*
 
 ````
 import sys

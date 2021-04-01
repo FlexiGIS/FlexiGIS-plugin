@@ -178,7 +178,7 @@ htmlhelp_basename = 'TemplateClassdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'flexgi_test.tex', u'flexgi_test Documentation',
+  ('index', 'flexigis.tex', u'flexigis Documentation',
    u'chinonso', 'manual'),
 ]
 
@@ -211,6 +211,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'TemplateClass', u'flexgi_test Documentation',
+    ('index', 'TemplateClass', u'flexigis Documentation',
      [u'chinonso'], 1)
 ]

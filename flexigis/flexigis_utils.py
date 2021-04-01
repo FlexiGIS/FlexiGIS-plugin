@@ -25,6 +25,14 @@ logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s',
 
 
 def filter_pbf_with_poly(pbffile, polyfile, output_filename):
+    """
+    This function uses Osmosis tool to extract an area of interest from a pbf
+    file, provided the poly file (polygon) of the destrict or area of interest is specified.
+
+    input: .osm.pbf of a city e.g. Bremen_latest.osm.pbf
+    input: .poly file of a destrict in Bremen e.g Neustadt.ploy
+    output: this returns .osm.pbf of Neustadt
+    """
     try:
         result = subprocess.run(["osmosis", "--read-pbf", "file="+str(pbffile),
                                  "--tag-filter", "accept-ways", "building=*", "--used-node",
@@ -51,12 +59,21 @@ def filter_pbf_with_poly(pbffile, polyfile, output_filename):
 
 
 def osm_convert(in_file, out_file):
+    """
+    This function converts .osm.pbf file into .o5m file.
+    input: .osm.pdf
+    output: .o5m
+    """
     result = subprocess.run(["osmconvert", str(in_file), "-o=" + str(out_file) + ".o5m"],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     logging.info(result)
 
 
 def osm_filter(input_o5m, osm_tag, output_osm):
+    """
+    The o5m file is filtered using OSMfilter tool, which extracts features informations
+    of specified Urban-infrastructure Tag e.g higway building, landuse
+    """
     result = subprocess.run(["osmfilter", str(input_o5m)+".o5m",
                              "--keep=" + str(osm_tag), "-o=" + str(output_osm) + ".osm"],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -64,6 +81,10 @@ def osm_filter(input_o5m, osm_tag, output_osm):
 
 
 def osm_shapefile(output_osm):
+    """
+    Export the filtered osm Tag file to shape files of polygon, lines and points.
+
+    """
     result = subprocess.run(["ogr2ogr", "-skipfailures", "-f",
                              "ESRI Shapefile", str(output_osm), str(output_osm) + ".osm"],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -88,6 +109,13 @@ def compute_area(dataset, width):
 
 
 def filter_lines(shp_file, out_dir):
+    """"
+    Filter, coordinate geoprocess, calculate width (meters) and area (meters squared) of urban highway lines
+    and export result to csv file
+
+    input: shape file e.g Lines.shp
+    output: csv file of geoprrocessed highway information
+    """
     layer = QgsVectorLayer(shp_file, "", 'ogr')
     highway_lines = {'living_street', 'motorway', 'pedestrian', 'primary', 'secondary', 'service', 'tertiary', 'trunk', 'motorway_link', 'primary_link', 'secondary_link', 'tertiary_link', 'trunk_link'}
     width = [7.5, 15.50, 7.5, 10.5, 9.5, 7.5, 9.5, 9.5, 6.5, 6.5, 6.5, 6.5, 6.5]
@@ -129,6 +157,13 @@ def filter_lines(shp_file, out_dir):
 
 
 def filter_squares(shp_file, out_dir):
+    """"
+    Filter, coordinate geoprocess, calculate area (meters squared) of urban highway squares
+    and export result to csv file
+
+    input: shape file e.g Polygons.shp
+    output: csv file of geoprrocessed highway information
+    """
     layer = QgsVectorLayer(shp_file, "", 'ogr')
     square_feature = {'crossing', 'footway', 'living_street','pedestrian', 'platform', 'residential', 'service', 'traffic_island'}
     osm_id = [feature["osm_id"] for feature in layer.getFeatures()]
@@ -177,7 +212,6 @@ def filter_squares(shp_file, out_dir):
     for i in filter_tag:
         m = i.split('"')
         feature_list.append(m[3])
-        
     highway_shapes["highway"] = feature_list
     highway_shapes_df = highway_shapes.loc[highway_shapes["highway"].isin(square_feature)]
     highway_shapes_df = highway_shapes_df.sort_values("highway")
@@ -189,21 +223,41 @@ def filter_squares(shp_file, out_dir):
 
 
 def shape_to_csv(dir_path, layer_name):
-	in_csvfile = os.path.join(dir_path, layer_name)
-	out_shpfile = os.path.join(dir_path, os.path.splitext(in_csvfile)[0])
-	result = subprocess.run(["ogr2ogr", "-oo", "GEOM_POSSIBLE_NAMES=geometry*", "-f", "ESRI Shapefile",
-                          str(out_shpfile)+".shp", str(in_csvfile)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    """
+    Export result stored as csv layers to shape files
+    input: csv file
+    output: shapefile 
+    """
+    in_csvfile = os.path.join(dir_path, layer_name)
+    out_shpfile = os.path.join(dir_path, os.path.splitext(in_csvfile)[0])
+    result = subprocess.run(["ogr2ogr", "-oo", "GEOM_POSSIBLE_NAMES=geometry*", "-f", "ESRI Shapefile",\
+        str(out_shpfile)+".shp", str(in_csvfile)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def csvLayerNames(layer_path):
-	layer_names = glob.glob(os.path.join(layer_path, "*.csv"))
-	xx = [os.path.basename(i) for i in layer_names]
-	return xx
+    """
+    Get names of layers stored as csv files. 
+    """
+    layer_names = glob.glob(os.path.join(layer_path, "*.csv"))
+    xx = [os.path.basename(i) for i in layer_names]
+    return xx
 
 
 # simulate street light electrcity demand
 def streetLightDemnd(input_path, input_path2, output_path):
-    """Get standard load profile."""
+    """Calculate's street light electricity demand, using highway information such as:
+    Highway Lines area (metersquared),
+    Highway squares area (metersquared),
+    street light electricity usage index,
+    street light standard load profile.
+
+    also the renewable generation can be simulated by parsing 
+    wind and solar PV time series data.
+
+    input: all input data are in csv file format
+    output: timeseries of electricity demand in csv.
+
+    """
     standardLoad = pd.read_csv(input_path)
     # SL1: All urban lights are operated as
     # - evening (16:15) - midnight (00:00) => 'On'
@@ -249,7 +303,8 @@ def streetLightDemnd(input_path, input_path2, output_path):
 
 
 def optimizationCommodities(input_path, input_path2, output_path):
-    """Get solar data."""
+    """Get renewable generation data.
+    """
     # demand and supply
     pv = pd.read_csv(input_path, parse_dates=True)
     wind = pd.read_csv(input_path2, parse_dates=True)
@@ -270,7 +325,15 @@ def optimizationCommodities(input_path, input_path2, output_path):
 
 
 def simulate_urban_demand(input_destination1, input_destination2, output_destination):
-    '''Simulate urban building electricity demand.'''
+    '''Simulate urban building infrastructure electricity demand for different infrastructure
+    clusters. The urban buildings are clustered into 5 different categories
+    1. Agricultural
+    2. Commercial
+    3. Educational
+    4. Industrial
+    5. Residential
+    output: csv file of electricity demand.
+    '''
 
     dfa = pd.read_csv(os.path.join(input_destination2, 'agricultural.csv'))
     dfc = pd.read_csv(os.path.join(input_destination2, 'commercial.csv'))
@@ -303,6 +366,9 @@ def simulate_urban_demand(input_destination1, input_destination2, output_destina
 
 
 def pv_feedin_generation(input_destination1, input_destination2, input_destination3, output_destination):
+    """
+    Calculate renewable generation of the building. The solar PV roof top generation is calculated.
+    """
     """Get wind and pv feed in data."""
 
     dfa = pd.read_csv(os.path.join(input_destination3, 'agricultural.csv'))
@@ -358,6 +424,11 @@ def pv_feedin_generation(input_destination1, input_destination2, input_destinati
 
 
 def symbolize_layer(dir_path, layerfile_name):
+    """Categorize and symbolize map in QGIS desktop.
+
+    When the layer is exported as map, the urban infrastructure features 
+    are symbolized with different color code.
+    """
     layer_path = os.path.join(dir_path, layerfile_name)
     file_name = os.path.splitext(layer_path)
     layer_name = os.path.basename(file_name[0])
@@ -423,6 +494,7 @@ def symbolize_layer(dir_path, layerfile_name):
 
 
 def transformGeo(x):
+    # helper function, transforms coordinate reference system from 4316 to 3857
     crsSrc = QgsCoordinateReferenceSystem(4326)
     crsDrc = QgsCoordinateReferenceSystem(3857)
     tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
@@ -431,17 +503,19 @@ def transformGeo(x):
 
 
 def computeArea(x):
+    # helper function, computes area of a QGIS feature coordinate
     area = round(x.area(), 2)
     return area
 
 
 def geoToAswkt(x):
+    # helper function, converts georeference to Aswkt
     x = x.asWkt()
     return x
 
 
 def landuseLayers(landuseShapefile, out_dir):
-    '''geoprocess landuse data'''
+    """geoprocess landuse layer Tag and export as csv file."""
     landuseLayers = get_landuseLayers(landuseShapefile)
     landuseLayers['geometry'] = landuseLayers.loc[:,
                                                   'geometry'].map(transformGeo)
@@ -452,7 +526,7 @@ def landuseLayers(landuseShapefile, out_dir):
 
 
 def get_landuseLayers(landuseShapefile):
-    '''Preprocess landuse geodata'''
+    '''Extract relevant landuse Tag information from shapefile.'''
     landuseLayer = QgsVectorLayer(landuseShapefile, "", 'ogr')
     # extract landuse features from layers
     osm_id_ = [feature['osm_id'] for feature in landuseLayer.getFeatures()]
@@ -490,7 +564,14 @@ def get_landuseLayers(landuseShapefile):
 
 
 def get_buildingLayers(buildingShapefile):
-    '''preprocess, building data'''
+    '''Preprocess building data. The building infrastructure are clustered into 5 different categories
+    1. Agricultural
+    2. Commercial
+    3. Educational
+    4. Industrial
+    5. Residential
+
+    '''
     buildingLayer = QgsVectorLayer(buildingShapefile, "", 'ogr')
     # extract landuse features from layers
 
@@ -527,6 +608,9 @@ def get_buildingLayers(buildingShapefile):
 
 
 def getIntersections(df_landuse, df_building):
+    """Helper function for extracting instersect geometries between polygons,
+    e.g a building type inside a it's landuse polygons.
+    """
     geoms = []
     for lg in df_landuse.geometry:
         for bg in df_building.geometry:
@@ -538,6 +622,9 @@ def getIntersections(df_landuse, df_building):
 
 
 def layersBuildings(landuse, building, type='residential'):
+    # find intersection for different buildiing features with their respective landuse type
+
+    # residential, commercial, industrial and agricultural
     if type == 'residential':
         residentials = getIntersections(landuse, building)
         return residentials
@@ -553,6 +640,8 @@ def layersBuildings(landuse, building, type='residential'):
 
 
 def education(buildings_, out_dir):
+    # Educational
+
     #buildings_ = get_buildingLayers(buildingShapefile)
     educational = buildings_[buildings_.building.isin(
         ["kindergarten", "school", "university"])]
@@ -564,6 +653,8 @@ def education(buildings_, out_dir):
 
 
 def residential_building(buildings_, landuseShapefile, out_dir):
+    # Residential buildings
+
     #buildings_ = get_buildingLayers(buildingShapefile)
     buildings = buildings_[~buildings_.building.isin(
         ["kindergarten", "school", "university"])]
@@ -579,6 +670,8 @@ def residential_building(buildings_, landuseShapefile, out_dir):
 
 
 def commercial_building(buildings_, landuseShapefile, out_dir):
+    #Commercial buildings
+
     #buildings_ = get_buildingLayers(buildingShapefile)
     buildings = buildings_[~buildings_.building.isin(
         ["kindergarten", "school", "university"])]
@@ -593,6 +686,8 @@ def commercial_building(buildings_, landuseShapefile, out_dir):
 
 
 def agricultural_building(buildings_, landuseShapefile, out_dir):
+    # Agricultural buildings
+
     #buildings_ = get_buildingLayers(buildingShapefile)
     buildings = buildings_[~buildings_.building.isin(
         ["kindergarten", "school", "university"])]
@@ -609,6 +704,8 @@ def agricultural_building(buildings_, landuseShapefile, out_dir):
 
 
 def industrial_building(buildings_, landuseShapefile, out_dir):
+    # Industrial buildings
+
     #buildings_ = get_buildingLayers(buildingShapefile)
     buildings = buildings_[~buildings_.building.isin(
         ["kindergarten", "school", "university"])]
@@ -624,6 +721,7 @@ def industrial_building(buildings_, landuseShapefile, out_dir):
 
 
 def building_layers(buildingShapefile, landuseShapefile, out_dir):
+    # generate clusters of different features, out put are csv files
     try:
         buildings_ = get_buildingLayers(buildingShapefile)
         education(buildings_, out_dir)

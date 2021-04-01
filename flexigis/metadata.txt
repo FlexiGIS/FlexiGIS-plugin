@@ -12,7 +12,7 @@ email=chinonoso.unaichi@dlr.de
 
 about=It extracts, filters and categorises the geo-referenced urban energy infrastructure, and simulates the local electricity consumption.
 
-#tracker=http://bugs
+#tracker=https://github.com/FlexiGIS/FlexiGIS-plugin
 repository=https://github.com/FlexiGIS/FlexiGIS-plugin
 # End of mandatory metadata
 
@@ -25,11 +25,11 @@ hasProcessingProvider=no
 # Tags are comma separated with spaces allowed
 tags=python, openstreetmap
 
-homepage=https://flexigis.readthedocs.io/en/latest/
+homepage=https://github.com/FlexiGIS/FlexiGIS-plugin
 category=Plugins
 icon=flexigis.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False

@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/flexgi_test" >
+    <qresource prefix="/plugins/flexigis" >
         <file>flexigis.png</file>
     </qresource>
 </RCC>

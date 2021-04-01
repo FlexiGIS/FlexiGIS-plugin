@@ -28,26 +28,15 @@ from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'flexgi_test_dialog_base.ui'))
-
-class flexgi_testDialog(QtWidgets.QDialog, FORM_CLASS):
+FORM_CLASS1, _ = uic.loadUiType(os.path.join(
+    os.path.dirname(__file__), 'filter_PBF.ui'))
+class Filter_Dialog(QtWidgets.QDialog, FORM_CLASS1):
     def __init__(self, parent=None):
-        """Constructor."""
-        super(flexgi_testDialog, self).__init__(parent)
         # Set up the user interface from Designer through FORM_CLASS.
         # After self.setupUi() you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
-        # #widgets-and-dialogs-with-auto-connect
-        self.setupUi(self)
-
-FORM_CLASS1, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'filter_PBF.ui'))
-class FilterPBF_Dialog(QtWidgets.QDialog, FORM_CLASS1):
-    def __init__(self, parent=None):
-        """Constructor."""
-        super(FilterPBF_Dialog, self).__init__(parent)
+        super(Filter_Dialog, self).__init__(parent)
         self.setupUi(self)
 
 
@@ -55,7 +44,6 @@ FORM_CLASS2, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'geoprocess.ui'))
 class Geoprocess_Dialog(QtWidgets.QDialog, FORM_CLASS2):
     def __init__(self, parent=None):
-        """Constructor."""
         super(Geoprocess_Dialog, self).__init__(parent)
         self.setupUi(self)
 

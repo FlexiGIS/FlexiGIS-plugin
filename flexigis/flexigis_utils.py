@@ -6,12 +6,12 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from qgis.core import *
-from qgis.PyQt.QtCore import QVariant
+#from qgis.PyQt.QtCore import QVariant
 import qgis
 from PyQt5.QtGui import *
 from qgis.PyQt import QtGui
 from random import randrange
-from qgis.PyQt.QtGui import QPolygonF, QColor
+#from qgis.PyQt.QtGui import QPolygonF, QColor
 
 if Path("log").exists():
     pass
@@ -99,12 +99,12 @@ def compute_area(dataset, width):
     as value.
 
     """
-    Area = []
+    dataset["area"] = np.nan
     for key, value in width.items():
-        area = dataset.loc[key]["length"]*value
-        Area.append(area)
-    Area = pd.concat(Area)
-    dataset["area"] = Area.values
+        dataset.loc[key]["area"] = dataset.loc[key]["length"]*value
+        #Area.append(area)
+    #Area = pd.concat(Area)
+    #dataset["area"] = Area.values
     return dataset
 
 

@@ -195,8 +195,7 @@ class flexigis:
 # ++++++++++++++++++++custom function begins++++++++++++++++++++++++++++++++++++
     # Block 1 => OSM File Filter
     def help_page(self):
-        webbrowser.open(
-            'https://github.com/FlexiGIS/FlexiGIS-plugin/blob/master/flexigis_plugin/help/source/index.rst#user-guide')
+        webbrowser.open('https://github.com/FlexiGIS/FlexiGIS-plugin/blob/master/flexigis/help/source/index.rst')
 
     def on_text_changed_b3(self):
         self.dlg1.b3.setEnabled(bool(self.dlg1.lineEdit1.text())

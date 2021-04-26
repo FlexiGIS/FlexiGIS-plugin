@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>644</width>
-    <height>500</height>
+    <width>963</width>
+    <height>554</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,13 +66,13 @@
     <widget class="QGroupBox" name="groupBox">
      <property name="font">
       <font>
-       <pointsize>13</pointsize>
+       <pointsize>14</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="title">
-      <string>Simulate electricity demand</string>
+      <string>IV- Simulate urban electricity requirments</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="5" column="2">
@@ -93,7 +93,7 @@
        <widget class="QComboBox" name="comboBox1_3">
         <property name="font">
          <font>
-          <pointsize>13</pointsize>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
@@ -114,13 +114,13 @@
        <widget class="QLabel" name="label_4">
         <property name="font">
          <font>
-          <pointsize>13</pointsize>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
         <property name="text">
-         <string>Urban infrastructure</string>
+         <string>Urban electricity demand</string>
         </property>
        </widget>
       </item>
@@ -128,7 +128,7 @@
        <widget class="QLineEdit" name="lineEdit4_3">
         <property name="font">
          <font>
-          <pointsize>13</pointsize>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
@@ -139,7 +139,7 @@
        <widget class="QLineEdit" name="lineEdit2_3">
         <property name="font">
          <font>
-          <pointsize>13</pointsize>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
@@ -150,13 +150,13 @@
        <widget class="QLabel" name="label_2">
         <property name="font">
          <font>
-          <pointsize>13</pointsize>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
         <property name="text">
-         <string>Select Wind-power data</string>
+         <string>Time series wind power data</string>
         </property>
        </widget>
       </item>
@@ -178,13 +178,13 @@
        <widget class="QLabel" name="label">
         <property name="font">
          <font>
-          <pointsize>13</pointsize>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
         <property name="text">
-         <string>Select load profile</string>
+         <string>Upload standard load profiles</string>
         </property>
        </widget>
       </item>
@@ -192,7 +192,7 @@
        <widget class="QLineEdit" name="lineEdit3_3">
         <property name="font">
          <font>
-          <pointsize>13</pointsize>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
@@ -203,7 +203,7 @@
        <widget class="QLineEdit" name="lineEdit1_3">
         <property name="font">
          <font>
-          <pointsize>13</pointsize>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
@@ -242,13 +242,13 @@
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
-          <pointsize>13</pointsize>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
         <property name="text">
-         <string>Select PV power data</string>
+         <string>Time series PV power data</string>
         </property>
        </widget>
       </item>
@@ -270,7 +270,7 @@
        <widget class="QLabel" name="label_5">
         <property name="font">
          <font>
-          <pointsize>13</pointsize>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
@@ -297,6 +297,7 @@
        <widget class="QLineEdit" name="lineEdit5_3">
         <property name="font">
          <font>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
@@ -307,12 +308,13 @@
        <widget class="QLabel" name="label_6">
         <property name="font">
          <font>
+          <pointsize>12</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
         <property name="text">
-         <string>Select layer path</string>
+         <string>Clustered-layers file path</string>
         </property>
        </widget>
       </item>

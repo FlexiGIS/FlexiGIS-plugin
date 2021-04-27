@@ -117,8 +117,8 @@ def filter_lines(shp_file, out_dir):
     output: csv file of geoprrocessed highway information
     """
     layer = QgsVectorLayer(shp_file, "", 'ogr')
-    highway_lines = {'living_street', 'motorway', 'residential', 'pedestrian', 'primary', 'secondary', 'service', 'tertiary', 'trunk', 'motorway_link', 'primary_link', 'secondary_link', 'tertiary_link', 'trunk_link'}
-    width = [7.5, 15.50, 6.5, 7.5, 10.5, 9.5, 7.5, 9.5, 9.5, 6.5, 6.5, 6.5, 6.5, 6.5]
+    highway_lines = {'living_street', 'motorway', 'residential', 'pedestrian', 'primary', 'secondary', 'service', 'tertiary', 'trunk', 'unclassified', 'motorway_link', 'primary_link', 'secondary_link', 'tertiary_link', 'trunk_link'}
+    width = [7.5, 15.50, 6.5, 7.5, 10.5, 9.5, 7.5, 9.5, 9.5, 7.5, 6.5, 6.5, 6.5, 6.5, 6.5]
 
     highway_width = dict(zip(highway_lines, width))
 

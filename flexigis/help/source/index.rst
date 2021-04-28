@@ -44,7 +44,7 @@ has three different windows that can be used to execute the three main FlexiGIS 
 - OSM data geoprocessing
 - Simulation of urban infrastructure electricity demand
 
-Filter OSM data
+Exract urban infrastructure datasets
 ================
 
 .. image:: image2.png
@@ -83,7 +83,7 @@ to shapefiles or visualize directly in the QGIS desktop as maps.
 - check the box 'shp' to export output csv file to shapefile or 'map' to generate a mape on the QGIS desktop
 
 
-Simulation of urban infrastructure electricity demand
+Simulation of urban urban electricity requirments
 ======================================================
 
 .. image:: image4.png

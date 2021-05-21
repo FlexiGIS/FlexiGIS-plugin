@@ -295,8 +295,7 @@ def streetLightDemnd(input_path, input_path2, output_path):
         row = str(timestamp[i]) + ';' + \
             str(osmArea*SL1[i]*x_sl) + ';' +\
             str(osmArea*SL2[i]*x_sl) + ';' +\
-            str((mainRoadandsquareArea*SL2[i]*x_sl) +
-                (secondaryRoadsArea*SL1[i]*x_sl)) + '\n'
+            str((mainRoadandsquareArea*SL2[i]*x_sl) + (secondaryRoadsArea*SL1[i]*x_sl)) + '\n'
         _streetLoad_.append(row)
     fname.writelines(_streetLoad_)
     fname.close()

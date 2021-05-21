@@ -249,12 +249,12 @@ class flexigis:
                 self.iface.messageBar().pushMessage(
                     "osm.pbf data filter using polygon done! see output file {}".format(self.pbf_filtered), level=Qgis.Success, duration=3)
 
-                msg.setText("Done!")
-                msg.setIcon(QMessageBox.Information)
-                msg.setInformativeText(
-                    "osm.pbf file filter using bounding polygons completed.")
-                msg.buttonClicked.connect(self.popup_button)
-                _ = msg.exec_()
+                # msg.setText("Done!")
+                # msg.setIcon(QMessageBox.Information)
+                # msg.setInformativeText(
+                #     "osm.pbf file filter using bounding polygons completed.")
+                
+                # _ = msg.exec_()
             else:
                 self.iface.messageBar().pushMessage(
                     "Ensure input poly file exits", level=Qgis.Warning, duration=4)
@@ -262,6 +262,7 @@ class flexigis:
                 msg.setIcon(QMessageBox.Warning)
                 msg.setInformativeText(
                     "Use the browse button to choose a valid .poly file")
+                msg.buttonClicked.connect(self.popup_button)
                 _ = msg.exec_()
         else:
             self.iface.messageBar().pushMessage(

@@ -3,17 +3,20 @@
 
 ## FlexiGIS-plugin: 
 
-It is a graphical user interface (GUI) of the [FlexiGIS](https://github.com/FlexiGIS) including [FlexiGIS-light](https://github.com/FlexiGIS/FlexiGIS_light). It extracts the geo-datasets of the urban energy infrastructure and simulates the electricity consumption in the respective case study. This plugin can be directly installed from the QGIS Plugin Manager within the [QGIS](https://www.qgis.org/en/site/) Desktop.
+It is a QGIS plugin that serves as a graphical user interface (GUI) of the [FlexiGIS](https://github.com/FlexiGIS) including [FlexiGIS-light](https://github.com/FlexiGIS/FlexiGIS_light) tools. This plugin is ready to be used, available to download and can be installed directly from the QGIS Plugin Manager within the [QGIS](https://www.qgis.org/en/site/) Desktop. FlexiGIS-Plugin introduces some of the FlexiGIS functionalities which are summerised in theree main steps. First, it extracts the raw datasets of the urban energy infrastructure from the [OpenStreetMap](https://www.openstreetmap.org/). Then, it geopreccess, clusters and c the extracted urban datasets, and finally simulates the electricity consumption in the respective city or district.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4497218.svg)](https://doi.org/10.5281/zenodo.4497218)
 
-![FlexiGIS Simulated Energy_requirements](image1.png)
-Fig. 1. A screen-shot of the experimental version of the FlexiGIS-GUI as a QGIS plugin.
+![FlexiGIS Simulated Energy_requirements](image.JPG)
+Fig. 1. A screen-shot of the first version of the FlexiGIS-GUI as a QGIS plugin.
 
-## Installation: testing the plugin on Qgis
-This plugin is not available yet on the QGIS plugin repository, however, it can be install manually in the QGIS desktop by following the steps mentioned below. 
+## Installation:
 
-**Note that this plugin has only been tested on the Linux Ubuntu environment. Also for this plugin to work, you need to already have [Osmosis](https://github.com/openstreetmap/osmosis#installation), [OSMfilter](https://wiki.openstreetmap.org/wiki/Osmfilter) and [GDAL](https://gdal.org/download.html) installed in your Linux Ubuntu.**
+This plugin can be directly installed from the QGIS Plugin Manager within the QGIS application.
+It can be also installed manually in the QGIS desktop by following the steps mentioned below. 
+
+**Note that this first version of the FlexiGIS-plugin supports Linux Ubuntu systems. We are working on solutions for Windows platform.
+In addtion, FlexiGIS is a GIS-based tool that uses mainly OSM data. Therefore, FlexiGIS-plugin needs the following tools and packages: [Osmosis](https://github.com/openstreetmap/osmosis#installation), [OSMfilter](https://wiki.openstreetmap.org/wiki/Osmfilter) and [GDAL](https://gdal.org/download.html) installed in your Linux Ubuntu.**
 
 - Clone the plugin repository (since the repo is not public yet, you will be ask for the flexigis github account username and password)
 

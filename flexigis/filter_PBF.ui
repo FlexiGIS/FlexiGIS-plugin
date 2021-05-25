@@ -84,7 +84,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Extracted data directory (.pbf)</string>
+         <string>Extracted data directory/name (.pbf)</string>
         </property>
        </widget>
       </item>
@@ -98,7 +98,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Download raw OSM data (.pbf)</string>
+         <string>Select raw OSM geo-data (.pbf)</string>
         </property>
        </widget>
       </item>

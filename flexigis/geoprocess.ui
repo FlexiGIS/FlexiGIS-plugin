@@ -109,7 +109,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Select extracted data (.pbf)</string>
+         <string>Select extracted data file (.pbf)</string>
         </property>
        </widget>
       </item>

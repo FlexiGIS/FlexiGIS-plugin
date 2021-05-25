@@ -13,10 +13,26 @@ Fig. 1. A screen-shot of the first version of the FlexiGIS-GUI as a QGIS plugin.
 ## Installation:
 
 This plugin can be directly installed from the QGIS Plugin Manager within the QGIS application.
-It can be also installed manually in the QGIS desktop by following the steps mentioned below. 
 
 **Note that this first version of the FlexiGIS-plugin supports Linux Ubuntu systems. We are working on solutions for Windows platform.
 In addtion, FlexiGIS is a GIS-based tool that uses mainly OSM data. Therefore, FlexiGIS-plugin needs the following tools and packages: [Osmosis](https://github.com/openstreetmap/osmosis#installation), [OSMfilter](https://wiki.openstreetmap.org/wiki/Osmfilter) and [GDAL](https://gdal.org/download.html) installed in your Linux Ubuntu.**
+
+## Dependencies
+
+- python >=3.5
+- pandas
+- gdal 
+- osmfilter
+- osmosis
+
+*NOTE: you can check your QGIS3 python version by running the below commands on your QGIS python terminal*
+
+````
+import sys
+sys.version
+````
+
+# FlexiGIS-plugin can be also installed manually in the QGIS desktop by following the steps mentioned below. 
 
 - Clone the plugin repository (since the repo is not public yet, you will be ask for the flexigis github account username and password)
 
@@ -35,21 +51,6 @@ After following the above steps, start your QGIS3 deskop environment. First inst
 In your QGIS menu bar go to: plugins > Manage and install plugins > installed (to check installed plugin). To ensure that the newly created plugin is present in the QGIS plugin path.
 
 To reload plugin go to the plugin reloader icon, click on the drop down menu, select configuration, then select the plugin you want to reload. In our case we select the 'flexigis_plugin'. The final hit the reload icon of the plugin reloader. This is done any time the plugin backed or front end codes are edited. See further documentation [here](https://github.com/FlexiGIS/FlexiGIS-plugin/blob/master/flexigis/help/source/index.rst).
-
-## Dependencies
-
-- python >=3.5
-- pandas
-- gdal 
-- osmfilter
-- osmosis
-
-*NOTE: you can check your QGIS3 python version by running the below commands on your QGIS python terminal*
-
-````
-import sys
-sys.version
-````
 
 ## License
 

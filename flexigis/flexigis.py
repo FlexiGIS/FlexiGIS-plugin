@@ -282,11 +282,18 @@ class flexigis:
         self.dlg2.lineEdit2_2.setText("")
 
     def select_pbf_block2(self):
-        file_extentsion = "pbf(*.osm.pbf)"
+        file_extension = "pbf(*.osm.pbf)"
         input_file = QFileDialog.getOpenFileName(
-            self.dlg2, "Select poly file", "", file_extentsion)
+            self.dlg2, "Select poly file", "", file_extension)
         self.urban_pbf = input_file[0]
         self.dlg2.lineEdit1_2.setText(self.urban_pbf)
+
+    def select_shp_block2(self):
+        file_extension = "shp(*.shp)"
+        input_file = QFileDialog.getOpenFileName(
+            self.dlg2, "Select shapefile", "", file_extension)
+        self.landuse_shp = input_file[0]
+        self.dlg2.lineEdit4_2.setText(self.landuse_shp)
 
     def on_b6_click(self):
         msg = QMessageBox()
@@ -328,7 +335,9 @@ class flexigis:
         out_file_dirname = self.dlg2.lineEdit2_2.text()
         osm_tag = self.dlg2.comboBox1_2.currentText()
         outfile_tag = os.path.join(input_file_dirname, osm_tag)
-        landuse_file_tag = os.path.join(input_file_dirname, 'landuse')
+        # landuse_file_tag = os.path.join(input_file_dirname, 'landuse')
+        landuse_out_tag = os.path.join(input_file_dirname, 'landuse')
+        landuse_input_file_name = self.dlg2.lineEdit4_2.text()
 
         #TODO: check out_file and Out_dir ==> make the naming less redundant!
         if osm_tag == "highway":
@@ -578,6 +587,7 @@ class flexigis:
         self.dlg2.b1_2.clicked.connect(self.select_pbf_block2)
         self.dlg2.b2_2.clicked.connect(self.on_b6_click)
         self.dlg2.b3_2.clicked.connect(self.on_b3_2_click)
+        self.dlg2.b9_2.clicked.connect(self.select_shp_block2)
         self.dlg2.checkBox.stateChanged.connect(self.checkBox_click)
         self.dlg2.checkBox_2.stateChanged.connect(self.checkBox2_click)
         self.dlg2.b4_2.clicked.connect(self.on_click_b4_2)

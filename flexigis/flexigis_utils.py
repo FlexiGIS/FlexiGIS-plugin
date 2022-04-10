@@ -683,12 +683,29 @@ def symbolize_layer(dir_path, layerfile_name):
 
 
 def transformGeo(x):
-    # helper function, transforms coordinate reference system from 4316 to 3857
+    # helper function, transforms coordinate reference system from 4326 to 3857
     crsSrc = QgsCoordinateReferenceSystem(4326)
     crsDrc = QgsCoordinateReferenceSystem(3857)
     tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
     x.transform(tr)
     return x
+
+
+def transformLanduseGeo1(geom):
+    # for landuse subroutine
+    crsSrc = QgsCoordinateReferenceSystem(25832)
+    crsDrc = QgsCoordinateReferenceSystem(3857)
+    tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
+    geom.transform(tr)
+    return geom
+
+def transformLanduseGeo2(geom):
+    # for building subroutine
+    crsSrc = QgsCoordinateReferenceSystem(25832)  # bei CLC epsg:25832
+    crsDrc = QgsCoordinateReferenceSystem(4326)
+    tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
+    geom.transform(tr)
+    return geom
 
 
 def computeArea(x):
@@ -756,6 +773,75 @@ def get_landuseLayers(landuseShapefile):
     return landuseLayers
 
 
+def refactor_landuse(landuseShapefile, out_dir, flag='landuse'):
+    '''Extract relevant landuse Tag information from shapefile.'''
+    landuseLayer = QgsVectorLayer(landuseShapefile, "", 'ogr')
+    # extract landuse features from layers
+    osm_id_ = [feature['id'] for feature in landuseLayer.getFeatures()]
+    landuse = [feature['landcover'] for feature in landuseLayer.getFeatures()]
+
+    # replace NULL osm_id with the corresponding non NULL values from osm_way_id list
+    #osm_id = []
+    #for i in range(len(osm_id_)):
+    #    if osm_id_[i] == NULL:
+    #        osm_id_[i] = 1
+    #    osm_id.append(osm_id_[i])
+
+    # append geometry data to dataframe
+    geometry_ = []
+    for feature in landuseLayer.getFeatures():
+        geom = feature.geometry()
+        geometry_.append(geom)
+
+    # create a dataframe of cleaned landuse layers
+    landuseLayers = pd.DataFrame(
+        {
+            'osm_id': osm_id_,
+            'landuse': landuse,
+            'geometry': geometry_
+        }
+    )
+
+    landuse_map = {
+        'Pasture, meadows and other perma\nnent grasslands under agricultural\nuse': 'agricultural',
+        'Peatbogs': 'agricultural',
+        'Fruit tree and berry plantations': 'agricultural',
+        'Agricultural farms': 'agricultural',
+        'Broad-leaved forest': 'agricultural',
+        'Mixed forest': 'agricultural',
+        'Non-irrigated arable land': 'agricultural',
+        'Coniferous forest': 'agricultural',
+        'Water bodies': 'agricultural',
+        'Water courses': 'agricultural',
+        'Airports': 'commercial',
+        'Sport and leisure facilities': 'commercial',
+        'Port area': 'industrial',
+        'Road and rail networks and associ\nated land': 'industrial',
+        'Mineral extraction sites': 'industrial',
+        'Dump sites': 'industrial',
+        'Green urban area': 'residential',
+        'Continuous urban fabric': 'residential',
+        'Discontinuous urban fabric': 'residential'
+    }
+
+    #landuseLayers = landuseLayers.sort_values(by='landuse')
+    landuseLayers['landuse'] = pd.Series([landuse_map.get(n, n) for n in landuseLayers['landuse']])
+
+    cluster = ['commercial', 'agricultural', 'industrial', 'residential']
+    landuseLayers = landuseLayers[landuseLayers['landuse'].isin(cluster)]
+
+    if flag == 'landuse':
+        landuseLayers['geometry'] = landuseLayers.loc[:,
+                            'geometry'].map(transformLanduseGeo1)
+    if flag == 'building':
+        landuseLayers['geometry'] = landuseLayers.loc[:,
+                                    'geometry'].map(transformLanduseGeo2)
+    landuseLayers['area'] = landuseLayers.loc[:, 'geometry'].map(computeArea)
+    landuseLayers['geometry'] = landuseLayers.loc[:,
+                                'geometry'].map(geoToAswkt)
+    landuseLayers.to_csv(os.path.join(out_dir, 'landuse.csv'))
+
+
 def get_buildingLayers(buildingShapefile):
     """Preprocess building data. The building infrastructure are clustered into 5 different categories
     1. Agricultural
@@ -798,7 +884,7 @@ def get_buildingLayers(buildingShapefile):
 
 
 def getIntersections(df_landuse, df_building):
-    """Helper function for extracting instersect geometries between polygons,
+    """Helper function for extracting intersect geometries between polygons,
     e.g a building type inside a it's landuse polygons.
     """
     geoms = []

@@ -45,7 +45,7 @@ from .flexigis_utils import (filter_pbf_with_poly, osm_convert, osm_filter,
                              osm_shapefile, csvLayerNames, symbolize_layer, simulate_urban_demand)
 from .flexigis_utils import (filter_lines, filter_squares, shape_to_csv,
                              streetLightDemnd, optimizationCommodities, landuseLayers, building_layers, pv_feedin_generation)
-
+from .flexigis_utils import refactor_landuse
 
 class flexigis:
     """QGIS Plugin Implementation."""
@@ -355,11 +355,8 @@ class flexigis:
 
         elif osm_tag == "landuse":
             landuse_cv_filenames = ['landuse.csv']
-            osm_convert(input_filename, out_file_dirname)
-            osm_filter(out_file_dirname, osm_tag, outfile_tag)
-            osm_shapefile(outfile_tag)
-            landuseLayers(os.path.join(
-                outfile_tag, "multipolygons.shp"), out_file_dirname)
+            refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
+            #landuseLayers(os.path.join(landuse_input_file_name), out_file_dirname)
 
             if self.dlg2.comboBox2_2.currentText() == "":
                 self.dlg2.comboBox2_2.addItems(
@@ -380,12 +377,11 @@ class flexigis:
             osm_shapefile(outfile_tag)
 
         # landuse
-            osm_convert(input_filename, out_file_dirname)
-            osm_filter(out_file_dirname, "landuse", landuse_file_tag)
-            osm_shapefile(landuse_file_tag)
+            refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
+            csv_to_shape(out_file_dirname, 'landuse.csv')
 
             building_layers(os.path.join(outfile_tag, "multipolygons.shp"),
-                            os.path.join(landuse_file_tag, "multipolygons.shp"), out_file_dirname)
+                            os.path.join(out_file_dirname, "landuse.shp"), out_file_dirname)
             if self.dlg2.comboBox2_2.currentText() == "":
                 self.dlg2.comboBox2_2.addItems(
                     [layer for layer in csvLayerNames(out_file_dirname)])

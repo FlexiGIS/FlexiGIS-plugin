@@ -292,8 +292,15 @@ class flexigis:
         file_extension = "shp(*.shp)"
         input_file = QFileDialog.getOpenFileName(
             self.dlg2, "Select shapefile", "", file_extension)
-        self.landuse_shp = input_file[0]
-        self.dlg2.lineEdit4_2.setText(self.landuse_shp)
+        self.shp_file = input_file[0]
+        self.dlg2.lineEdit4_2.setText(self.shp_file)
+
+    def select_shp2_block2(self):
+        file_extension = "shp(*.shp)"
+        input_file = QFileDialog.getOpenFileName(
+            self.dlg2, "Select shapefile", "", file_extension)
+        self.shp_file = input_file[0]
+        self.dlg2.lineEdit5_2.setText(self.shp_file)
 
     def on_b6_click(self):
         msg = QMessageBox()
@@ -338,6 +345,7 @@ class flexigis:
         # landuse_file_tag = os.path.join(input_file_dirname, 'landuse')
         landuse_out_tag = os.path.join(input_file_dirname, 'landuse')
         landuse_input_file_name = self.dlg2.lineEdit4_2.text()
+        buildings_input_file_name = self.dlg2.lineEdit5_2.text()
 
         #TODO: check out_file and Out_dir ==> make the naming less redundant!
         if osm_tag == "highway":
@@ -387,9 +395,9 @@ class flexigis:
 
         # landuse
             refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
-            csv_to_shape(out_file_dirname, 'landuse.csv')
+            shape_to_csv(out_file_dirname, 'landuse.csv')
 
-            building_layers(os.path.join(outfile_tag, "multipolygons.shp"),
+            building_layers(buildings_input_file_name,
                             os.path.join(out_file_dirname, "landuse.shp"), out_file_dirname)
             if self.dlg2.comboBox2_2.currentText() == "":
                 self.dlg2.comboBox2_2.addItems(
@@ -588,6 +596,7 @@ class flexigis:
         self.dlg2.b2_2.clicked.connect(self.on_b6_click)
         self.dlg2.b3_2.clicked.connect(self.on_b3_2_click)
         self.dlg2.b9_2.clicked.connect(self.select_shp_block2)
+        self.dlg2.b10_2.clicked.connect(self.select_shp2_block2)
         self.dlg2.checkBox.stateChanged.connect(self.checkBox_click)
         self.dlg2.checkBox_2.stateChanged.connect(self.checkBox2_click)
         self.dlg2.b4_2.clicked.connect(self.on_click_b4_2)

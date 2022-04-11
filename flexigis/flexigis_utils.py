@@ -780,13 +780,6 @@ def refactor_landuse(landuseShapefile, out_dir, flag='landuse'):
     osm_id_ = [feature['id'] for feature in landuseLayer.getFeatures()]
     landuse = [feature['landcover'] for feature in landuseLayer.getFeatures()]
 
-    # replace NULL osm_id with the corresponding non NULL values from osm_way_id list
-    #osm_id = []
-    #for i in range(len(osm_id_)):
-    #    if osm_id_[i] == NULL:
-    #        osm_id_[i] = 1
-    #    osm_id.append(osm_id_[i])
-
     # append geometry data to dataframe
     geometry_ = []
     for feature in landuseLayer.getFeatures():
@@ -824,7 +817,6 @@ def refactor_landuse(landuseShapefile, out_dir, flag='landuse'):
         'Discontinuous urban fabric': 'residential'
     }
 
-    #landuseLayers = landuseLayers.sort_values(by='landuse')
     landuseLayers['landuse'] = pd.Series([landuse_map.get(n, n) for n in landuseLayers['landuse']])
 
     cluster = ['commercial', 'agricultural', 'industrial', 'residential']

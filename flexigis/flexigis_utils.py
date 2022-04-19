@@ -736,16 +736,16 @@ def get_landuseLayers(landuseShapefile):
     landuseLayer = QgsVectorLayer(landuseShapefile, "", "ogr")
     # extract landuse features from layers
     osm_id_ = [feature["osm_id"] for feature in landuseLayer.getFeatures()]
-    osm_way_id = [
-        feature["osm_way_id"] for feature in landuseLayer.getFeatures()
-    ]
+    #osm_way_id = [
+    #    feature["osm_way_id"] for feature in landuseLayer.getFeatures()
+    #]
     landuse = [feature["landuse"] for feature in landuseLayer.getFeatures()]
 
     # replace NULL osm_id with the corresponding non NULL values from osm_way_id list
     osm_id = []
     for i in range(len(osm_id_)):
-        if osm_id_[i] == NULL:
-            osm_id_[i] = osm_way_id[i]
+    #    if osm_id_[i] == NULL:
+    #        osm_id_[i] = osm_way_id[i]
         osm_id.append(osm_id_[i])
 
     # calculate geometry area

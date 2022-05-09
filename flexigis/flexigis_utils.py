@@ -690,24 +690,6 @@ def transformGeo(x):
     x.transform(tr)
     return x
 
-
-def transformLanduseGeo1(geom):
-    # for landuse subroutine
-    crsSrc = QgsCoordinateReferenceSystem(25832)
-    crsDrc = QgsCoordinateReferenceSystem(3857)
-    tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
-    geom.transform(tr)
-    return geom
-
-def transformLanduseGeo2(geom):
-    # for building subroutine
-    crsSrc = QgsCoordinateReferenceSystem(25832)  # bei CLC epsg:25832
-    crsDrc = QgsCoordinateReferenceSystem(4326)
-    tr = QgsCoordinateTransform(crsSrc, crsDrc, QgsProject.instance())
-    geom.transform(tr)
-    return geom
-
-
 def computeArea(x):
     # helper function, computes area of a QGIS feature coordinate
     area = round(x.area(), 2)
@@ -735,18 +717,18 @@ def get_landuseLayers(landuseShapefile):
     """Extract relevant landuse Tag information from shapefile."""
     landuseLayer = QgsVectorLayer(landuseShapefile, "", "ogr")
     # extract landuse features from layers
-    osm_id_ = [feature["osm_id"] for feature in landuseLayer.getFeatures()]
+    #osm_id_ = [feature["osm_id"] for feature in landuseLayer.getFeatures()]
     #osm_way_id = [
     #    feature["osm_way_id"] for feature in landuseLayer.getFeatures()
     #]
     landuse = [feature["landuse"] for feature in landuseLayer.getFeatures()]
 
     # replace NULL osm_id with the corresponding non NULL values from osm_way_id list
-    osm_id = []
-    for i in range(len(osm_id_)):
+    #osm_id = []
+    #for i in range(len(osm_id_)):
     #    if osm_id_[i] == NULL:
     #        osm_id_[i] = osm_way_id[i]
-        osm_id.append(osm_id_[i])
+    #    osm_id.append(osm_id_[i])
 
     # calculate geometry area
     geometry_ = []
@@ -757,13 +739,15 @@ def get_landuseLayers(landuseShapefile):
 
     # create a dataframe of cleaned landuse layers
     landuseLayers = pd.DataFrame(
-        {"osm_id": osm_id, "landuse": landuse, "geometry": geometry_}
+        {"landuse": landuse, "geometry": geometry_}
+        #{"osm_id": osm_id, "landuse": landuse, "geometry": geometry_}
     )
     landuseLayers = landuseLayers.sort_values(by="landuse")
     cluster = [
-        "farmyard",
-        "greenhouse_horticulture",
-        "farmland",
+        # "farmyard",
+        # "greenhouse_horticulture",
+        # "farmland",
+        "agricultural",
         "commercial",
         "retail",
         "industrial",
@@ -777,8 +761,8 @@ def refactor_landuse(landuseShapefile, out_dir, flag='landuse'):
     '''Extract relevant landuse Tag information from shapefile.'''
     landuseLayer = QgsVectorLayer(landuseShapefile, "", 'ogr')
     # extract landuse features from layers
-    osm_id_ = [feature['id'] for feature in landuseLayer.getFeatures()]
-    landuse = [feature['landcover'] for feature in landuseLayer.getFeatures()]
+    #osm_id_ = [feature['id'] for feature in landuseLayer.getFeatures()]
+    landuse = [feature['clc'] for feature in landuseLayer.getFeatures()]
 
     # append geometry data to dataframe
     geometry_ = []
@@ -789,32 +773,41 @@ def refactor_landuse(landuseShapefile, out_dir, flag='landuse'):
     # create a dataframe of cleaned landuse layers
     landuseLayers = pd.DataFrame(
         {
-            'osm_id': osm_id_,
+            #'osm_id': osm_id_,
             'landuse': landuse,
             'geometry': geometry_
         }
     )
 
     landuse_map = {
-        'Pasture, meadows and other perma\nnent grasslands under agricultural\nuse': 'agricultural',
-        'Peatbogs': 'agricultural',
-        'Fruit tree and berry plantations': 'agricultural',
-        'Agricultural farms': 'agricultural',
-        'Broad-leaved forest': 'agricultural',
-        'Mixed forest': 'agricultural',
-        'Non-irrigated arable land': 'agricultural',
-        'Coniferous forest': 'agricultural',
-        'Water bodies': 'agricultural',
-        'Water courses': 'agricultural',
-        'Airports': 'commercial',
-        'Sport and leisure facilities': 'commercial',
-        'Port area': 'industrial',
-        'Road and rail networks and associ\nated land': 'industrial',
-        'Mineral extraction sites': 'industrial',
-        'Dump sites': 'industrial',
-        'Green urban area': 'residential',
-        'Continuous urban fabric': 'residential',
-        'Discontinuous urban fabric': 'residential'
+        '111': 'residential',
+        '112': 'residential',
+        '121': 'commercial',
+        '122': 'industrial',
+        '123': 'industrial',
+        '124': 'commercial',
+        '131': 'industrial',
+        '132': 'industrial',
+        '142': 'commercial',
+        '211': 'agricultural',
+        '212': 'agricultural',
+        '213': 'agricultural',
+        '221': 'agricultural',
+        '222': 'agricultural',
+        '223': 'agricultural',
+        '231': 'agricultural',
+        '241': 'agricultural',
+        '242': 'agricultural',
+        '243': 'agricultural',
+        '244': 'agricultural',
+        '311': 'residential',
+        '312': 'residential',
+        '313': 'residential',
+        '321': 'residential',
+        '322': 'residential',
+        '323': 'residential',
+        '324': 'residential',
+        '412': 'residential'
     }
 
     landuseLayers['landuse'] = pd.Series([landuse_map.get(n, n) for n in landuseLayers['landuse']])
@@ -824,10 +817,8 @@ def refactor_landuse(landuseShapefile, out_dir, flag='landuse'):
 
     if flag == 'landuse':
         landuseLayers['geometry'] = landuseLayers.loc[:,
-                            'geometry'].map(transformLanduseGeo1)
-    if flag == 'building':
-        landuseLayers['geometry'] = landuseLayers.loc[:,
-                                    'geometry'].map(transformLanduseGeo2)
+                            'geometry'].map(transformGeo)
+
     landuseLayers['area'] = landuseLayers.loc[:, 'geometry'].map(computeArea)
     landuseLayers['geometry'] = landuseLayers.loc[:,
                                 'geometry'].map(geoToAswkt)
@@ -846,18 +837,18 @@ def get_buildingLayers(buildingShapefile):
     buildingLayer = QgsVectorLayer(buildingShapefile, "", "ogr")
     # extract landuse features from layers
 
-    osm_id_ = [feature["osm_id"] for feature in buildingLayer.getFeatures()]
-    osm_way_id = [
-        feature["osm_way_id"] for feature in buildingLayer.getFeatures()
-    ]
-    building = [feature["building"] for feature in buildingLayer.getFeatures()]
+    #osm_id_ = [feature["osm_id"] for feature in buildingLayer.getFeatures()]
+    #osm_way_id = [
+    #    feature["osm_way_id"] for feature in buildingLayer.getFeatures()
+    #]
+    #building = [feature["building"] for feature in buildingLayer.getFeatures()]
 
     # replace NULL osm_id with the corresponding non NULL values from osm_way_id list
-    osm_id = []
-    for i in range(len(osm_id_)):
-        if osm_id_[i] == NULL:
-            osm_id_[i] = osm_way_id[i]
-        osm_id.append(osm_id_[i])
+    #osm_id = []
+    #for i in range(len(osm_id_)):
+    #    if osm_id_[i] == NULL:
+    #        osm_id_[i] = osm_way_id[i]
+    #    osm_id.append(osm_id_[i])
 
     # change coordinate refrence system
     # calculate geometry area
@@ -869,9 +860,10 @@ def get_buildingLayers(buildingShapefile):
 
     # create a dataframe of cleaned landuse layers
     buildingLayers = pd.DataFrame(
-        {"osm_id": osm_id, "building": building, "geometry": geometry_}
+        #{"osm_id": osm_id, "building": building, "geometry": geometry_}
+        {"geometry": geometry_}
     )
-    buildingLayers = buildingLayers.sort_values(by="building")
+    #buildingLayers = buildingLayers.sort_values(by="building")
     return buildingLayers
 
 
@@ -925,9 +917,10 @@ def residential_building(buildings_, landuseShapefile, out_dir):
     # Residential buildings
 
     # buildings_ = get_buildingLayers(buildingShapefile)
-    buildings = buildings_[
-        ~buildings_.building.isin(["kindergarten", "school", "university"])
-    ]
+    #buildings = buildings_[
+    #    ~buildings_.building.isin(["kindergarten", "school", "university"])
+    #]
+    buildings = buildings_
     landuses = get_landuseLayers(landuseShapefile)
     landuseResidential = landuses[landuses.landuse == "residential"]
     residential = layersBuildings(
@@ -944,9 +937,10 @@ def commercial_building(buildings_, landuseShapefile, out_dir):
     # Commercial buildings
 
     # buildings_ = get_buildingLayers(buildingShapefile)
-    buildings = buildings_[
-        ~buildings_.building.isin(["kindergarten", "school", "university"])
-    ]
+    #buildings = buildings_[
+    #    ~buildings_.building.isin(["kindergarten", "school", "university"])
+    #]
+    buildings = buildings_
     landuses = get_landuseLayers(landuseShapefile)
     landusecomm = landuses[landuses.landuse.isin({"commercial", "retail"})]
     commercial = layersBuildings(landusecomm, buildings, type="commercial")
@@ -961,16 +955,18 @@ def agricultural_building(buildings_, landuseShapefile, out_dir):
     # Agricultural buildings
 
     # buildings_ = get_buildingLayers(buildingShapefile)
-    buildings = buildings_[
-        ~buildings_.building.isin(["kindergarten", "school", "university"])
-    ]
+    #buildings = buildings_[
+    #    ~buildings_.building.isin(["kindergarten", "school", "university"])
+    #]
+    buildings = buildings_
     landuses = get_landuseLayers(landuseShapefile)
-    land_agric = landuses[
-        landuses.landuse.isin(
-            {"farmyard", "farmland", "greenhouse_horticulture"}
-        )
-    ]
-    agricultural = layersBuildings(land_agric, buildings, type="agricultural")
+    land_agric = landuses[landuses.landuse == "agricultural"]
+        #landuses.landuse.isin(
+        #    {"farmyard", "farmland", "greenhouse_horticulture"}
+        #)
+    #]
+    agricultural = getIntersections(land_agric, buildings)
+    #agricultural = layersBuildings(land_agric, buildings, type="agricultural")
     agricultural["geometry"] = agricultural["geometry"].map(transformGeo)
     agricultural["area"] = agricultural["geometry"].map(computeArea)
     agricultural["geometry"] = agricultural["geometry"].map(geoToAswkt)
@@ -984,9 +980,10 @@ def industrial_building(buildings_, landuseShapefile, out_dir):
     # Industrial buildings
 
     # buildings_ = get_buildingLayers(buildingShapefile)
-    buildings = buildings_[
-        ~buildings_.building.isin(["kindergarten", "school", "university"])
-    ]
+    #buildings = buildings_[
+    #    ~buildings_.building.isin(["kindergarten", "school", "university"])
+    #]
+    buildings = buildings_
     landuses = get_landuseLayers(landuseShapefile)
     landuseIndustrial = landuses[landuses.landuse == "industrial"]
     industrial = layersBuildings(
@@ -1003,7 +1000,7 @@ def building_layers(buildingShapefile, landuseShapefile, out_dir):
     # generate clusters of different features, out put are csv files
     try:
         buildings_ = get_buildingLayers(buildingShapefile)
-        education(buildings_, out_dir)
+        #education(buildings_, out_dir)
         residential_building(buildings_, landuseShapefile, out_dir)
         commercial_building(buildings_, landuseShapefile, out_dir)
         agricultural_building(buildings_, landuseShapefile, out_dir)

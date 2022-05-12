@@ -760,8 +760,8 @@ def get_landuseLayers(landuseShapefile):
 def refactor_landuse(landuseShapefile, out_dir, flag='landuse'):
     '''Extract relevant landuse Tag information from shapefile.'''
     landuseLayer = QgsVectorLayer(landuseShapefile, "", 'ogr')
+
     # extract landuse features from layers
-    #osm_id_ = [feature['id'] for feature in landuseLayer.getFeatures()]
     landuse = [feature['clc'] for feature in landuseLayer.getFeatures()]
 
     # append geometry data to dataframe
@@ -965,8 +965,7 @@ def agricultural_building(buildings_, landuseShapefile, out_dir):
         #    {"farmyard", "farmland", "greenhouse_horticulture"}
         #)
     #]
-    agricultural = getIntersections(land_agric, buildings)
-    #agricultural = layersBuildings(land_agric, buildings, type="agricultural")
+    agricultural = layersBuildings(land_agric, buildings, type="agricultural")
     agricultural["geometry"] = agricultural["geometry"].map(transformGeo)
     agricultural["area"] = agricultural["geometry"].map(computeArea)
     agricultural["geometry"] = agricultural["geometry"].map(geoToAswkt)

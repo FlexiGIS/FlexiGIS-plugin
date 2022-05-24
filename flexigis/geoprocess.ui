@@ -270,6 +270,20 @@
         </property>
        </widget>
       </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="checkBox_3">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>OSM data only?</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

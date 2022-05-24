@@ -336,16 +336,16 @@ class flexigis:
     def on_b3_2_click(self):
         msg = QMessageBox()
         msg.setWindowTitle("OSM geoprocessing")
-        input_filename = self.dlg2.lineEdit1_2.text()
+        input_filename = self.dlg2.lineEdit1_2.text()  # Filename of PBF-File
         input_file_dirname = os.path.split(input_filename)[0]
         # out_file = os.path.basename(self.dlg.lineEdit_5.text())
-        out_file_dirname = self.dlg2.lineEdit2_2.text()
-        osm_tag = self.dlg2.comboBox1_2.currentText()
+        out_file_dirname = self.dlg2.lineEdit2_2.text()  # Directory of Outputs
+        osm_tag = self.dlg2.comboBox1_2.currentText()  # -> "building", "highway", "landuse"
         outfile_tag = os.path.join(input_file_dirname, osm_tag)
         # landuse_file_tag = os.path.join(input_file_dirname, 'landuse')
         landuse_out_tag = os.path.join(input_file_dirname, 'landuse')
-        landuse_input_file_name = self.dlg2.lineEdit4_2.text()
-        buildings_input_file_name = self.dlg2.lineEdit5_2.text()
+        landuse_input_file_name = self.dlg2.lineEdit4_2.text()  # Input of EO landuse data
+        buildings_input_file_name = self.dlg2.lineEdit5_2.text()  # Input of EO building data
 
         #TODO: check out_file and Out_dir ==> make the naming less redundant!
         if osm_tag == "highway":
@@ -372,12 +372,16 @@ class flexigis:
 
         elif osm_tag == "landuse":
             landuse_cv_filenames = ['landuse.csv']
-            refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
-            #landuseLayers(os.path.join(landuse_input_file_name), out_file_dirname)
+            if self.dlg2.checkBox3.isChecked():  # Only process OSM data?
+                refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
+                #landuseLayers(os.path.join(landuse_input_file_name), out_file_dirname)
+            else:  # Process EO data
+                refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
 
-            if self.dlg2.comboBox2_2.currentText() == "":
+            # Add generated files to comboBox for later post-processing to shapefiles etc
+            if self.dlg2.comboBox2_2.currentText() == "":  # if no elements available -> add them
                 self.dlg2.comboBox2_2.addItems(
-                    [layer for layer in csvLayerNames(out_file_dirname)])
+                    [layer for layer in csvLayerNames(out_file_dirname)])  # only 'landuse.csv' should appear here
             elif "landuse.csv" in [self.dlg2.comboBox2_2.itemText(i) for i in range(self.dlg2.comboBox2_2.count())]:
                 pass
             else:
@@ -389,16 +393,28 @@ class flexigis:
         elif osm_tag == "building":
             building_cv_filenames = ['agricultural.csv', 'commercial.csv',
                                         'educational.csv', 'industrial.csv', 'residential.csv']
-            osm_convert(input_filename, out_file_dirname)
-            osm_filter(out_file_dirname, "building", outfile_tag)
-            osm_shapefile(outfile_tag)
+            if self.dlg2.checkBox_3.isChecked():  # Only process OSM data?
+                osm_convert(input_filename, out_file_dirname)
+                osm_filter(out_file_dirname, "building", outfile_tag)
+                osm_shapefile(outfile_tag)
 
-        # landuse
-            refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
-            shape_to_csv(out_file_dirname, 'landuse.csv')
+            # landuse
+                refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
+                shape_to_csv(out_file_dirname, 'landuse.csv')
 
-            building_layers(buildings_input_file_name,
-                            os.path.join(out_file_dirname, "landuse.shp"), out_file_dirname)
+                building_layers(buildings_input_file_name,
+                                os.path.join(out_file_dirname, "landuse.shp"), out_file_dirname)
+            else:  # Process EO data only
+                # Generate landuse-data from input and export to shapefile
+                refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
+                shape_to_csv(out_file_dirname, 'landuse.csv')
+
+                # intersect landuse and building layers
+                building_layers(buildings_input_file_name,
+                                os.path.join(out_file_dirname, "landuse.shp"), out_file_dirname)
+
+
+            # Add generated files to comboBox for later post-processing to shapefiles etc
             if self.dlg2.comboBox2_2.currentText() == "":
                 self.dlg2.comboBox2_2.addItems(
                     [layer for layer in csvLayerNames(out_file_dirname)])

@@ -342,7 +342,7 @@ class flexigis:
         out_file_dirname = self.dlg2.lineEdit2_2.text()  # Directory of Outputs
         osm_tag = self.dlg2.comboBox1_2.currentText()  # -> "building", "highway", "landuse"
         outfile_tag = os.path.join(input_file_dirname, osm_tag)
-        # landuse_file_tag = os.path.join(input_file_dirname, 'landuse')
+        landuse_file_tag = os.path.join(input_file_dirname, 'landuse')
         landuse_out_tag = os.path.join(input_file_dirname, 'landuse')
         landuse_input_file_name = self.dlg2.lineEdit4_2.text()  # Input of EO landuse data
         buildings_input_file_name = self.dlg2.lineEdit5_2.text()  # Input of EO building data

@@ -346,6 +346,7 @@ class flexigis:
         landuse_out_tag = os.path.join(input_file_dirname, 'landuse')
         landuse_input_file_name = self.dlg2.lineEdit4_2.text()  # Input of EO landuse data
         buildings_input_file_name = self.dlg2.lineEdit5_2.text()  # Input of EO building data
+        use_osm_only = self.dlg2.checkBox_3.isChecked()
 
         #TODO: check out_file and Out_dir ==> make the naming less redundant!
         if osm_tag == "highway":
@@ -372,7 +373,7 @@ class flexigis:
 
         elif osm_tag == "landuse":
             landuse_cv_filenames = ['landuse.csv']
-            if self.dlg2.checkBox_3.isChecked():  # Only process OSM data?
+            if use_osm_only:  # Only process OSM data?
                 osm_convert(input_filename, out_file_dirname)
                 osm_filter(out_file_dirname, osm_tag, outfile_tag)
                 osm_shapefile(outfile_tag)
@@ -396,7 +397,7 @@ class flexigis:
         elif osm_tag == "building":
             building_cv_filenames = ['agricultural.csv', 'commercial.csv',
                                         'educational.csv', 'industrial.csv', 'residential.csv']
-            if self.dlg2.checkBox_3.isChecked():  # Only process OSM data?
+            if use_osm_only:  # Only process OSM data?
                 osm_convert(input_filename, out_file_dirname)
                 osm_filter(out_file_dirname, "building", outfile_tag)
                 osm_shapefile(outfile_tag)
@@ -407,7 +408,8 @@ class flexigis:
                 osm_shapefile(landuse_file_tag)
 
                 building_layers(os.path.join(outfile_tag, "multipolygons.shp"),
-                                os.path.join(landuse_file_tag, "multipolygons.shp"), out_file_dirname)
+                                os.path.join(landuse_file_tag, "multipolygons.shp"),
+                                out_file_dirname, use_osm_only)
             else:  # Process EO data only
                 # Generate landuse-data from input and export to shapefile
                 refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
@@ -415,7 +417,8 @@ class flexigis:
 
                 # intersect landuse and building layers
                 building_layers(buildings_input_file_name,
-                                os.path.join(out_file_dirname, "landuse.shp"), out_file_dirname)
+                                os.path.join(out_file_dirname, "landuse.shp"),
+                                out_file_dirname, use_osm_only)
 
 
             # Add generated files to comboBox for later post-processing to shapefiles etc

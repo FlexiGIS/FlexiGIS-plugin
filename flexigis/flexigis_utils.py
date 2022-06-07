@@ -713,22 +713,23 @@ def landuseLayers(landuseShapefile, out_dir):
     landuseLayers.to_csv(os.path.join(out_dir, "landuse.csv"))
 
 
-def get_landuseLayers(landuseShapefile):
+def get_landuseLayers(landuseShapefile, osm_only):
     """Extract relevant landuse Tag information from shapefile."""
     landuseLayer = QgsVectorLayer(landuseShapefile, "", "ogr")
     # extract landuse features from layers
-    #osm_id_ = [feature["osm_id"] for feature in landuseLayer.getFeatures()]
-    #osm_way_id = [
-    #    feature["osm_way_id"] for feature in landuseLayer.getFeatures()
-    #]
-    landuse = [feature["landuse"] for feature in landuseLayer.getFeatures()]
+    if osm_only:
+        osm_id_ = [feature["osm_id"] for feature in landuseLayer.getFeatures()]
+        osm_way_id = [
+           feature["osm_way_id"] for feature in landuseLayer.getFeatures()
+        ]
+        # replace NULL osm_id with the corresponding non NULL values from osm_way_id list
+        osm_id = []
+        for i in range(len(osm_id_)):
+           if osm_id_[i] == NULL:
+               osm_id_[i] = osm_way_id[i]
+           osm_id.append(osm_id_[i])
 
-    # replace NULL osm_id with the corresponding non NULL values from osm_way_id list
-    #osm_id = []
-    #for i in range(len(osm_id_)):
-    #    if osm_id_[i] == NULL:
-    #        osm_id_[i] = osm_way_id[i]
-    #    osm_id.append(osm_id_[i])
+    landuse = [feature["landuse"] for feature in landuseLayer.getFeatures()]
 
     # calculate geometry area
     geometry_ = []
@@ -738,21 +739,26 @@ def get_landuseLayers(landuseShapefile):
         geometry_.append(geom)
 
     # create a dataframe of cleaned landuse layers
-    landuseLayers = pd.DataFrame(
-        {"landuse": landuse, "geometry": geometry_}
-        #{"osm_id": osm_id, "landuse": landuse, "geometry": geometry_}
-    )
+    if osm_only:
+        landuseLayers = pd.DataFrame(
+            {"osm_id": osm_id, "landuse": landuse, "geometry": geometry_}
+        )
+        cluster = [
+            "farmyard",
+            "greenhouse_horticulture",
+            "farmland"]
+    else:
+        landuseLayers = pd.DataFrame(
+            {"landuse": landuse, "geometry": geometry_}
+        )
+        landuseLayers = landuseLayers.sort_values(by="landuse")
+        cluster = [
+            "agricultural",
+            "commercial",
+            "retail",
+            "industrial",
+            "residential"]
     landuseLayers = landuseLayers.sort_values(by="landuse")
-    cluster = [
-        # "farmyard",
-        # "greenhouse_horticulture",
-        # "farmland",
-        "agricultural",
-        "commercial",
-        "retail",
-        "industrial",
-        "residential",
-    ]
     landuseLayers = landuseLayers[landuseLayers["landuse"].isin(cluster)]
     return landuseLayers
 
@@ -825,7 +831,7 @@ def refactor_landuse(landuseShapefile, out_dir, flag='landuse'):
     landuseLayers.to_csv(os.path.join(out_dir, 'landuse.csv'))
 
 
-def get_buildingLayers(buildingShapefile):
+def get_buildingLayers(buildingShapefile, osm_only):
     """Preprocess building data. The building infrastructure are clustered into 5 different categories
     1. Agricultural
     2. Commercial
@@ -836,19 +842,20 @@ def get_buildingLayers(buildingShapefile):
     """
     buildingLayer = QgsVectorLayer(buildingShapefile, "", "ogr")
     # extract landuse features from layers
+    if osm_only:
+        osm_id_ = [feature["osm_id"] for feature in buildingLayer.getFeatures()]
+        osm_way_id = [
+           feature["osm_way_id"] for feature in buildingLayer.getFeatures()
+        ]
+        building = [feature["building"] for feature in buildingLayer.getFeatures()]
 
-    #osm_id_ = [feature["osm_id"] for feature in buildingLayer.getFeatures()]
-    #osm_way_id = [
-    #    feature["osm_way_id"] for feature in buildingLayer.getFeatures()
-    #]
-    #building = [feature["building"] for feature in buildingLayer.getFeatures()]
+        replace NULL osm_id with the corresponding non NULL values from osm_way_id list
+        osm_id = []
+        for i in range(len(osm_id_)):
+           if osm_id_[i] == NULL:
+               osm_id_[i] = osm_way_id[i]
+           osm_id.append(osm_id_[i])
 
-    # replace NULL osm_id with the corresponding non NULL values from osm_way_id list
-    #osm_id = []
-    #for i in range(len(osm_id_)):
-    #    if osm_id_[i] == NULL:
-    #        osm_id_[i] = osm_way_id[i]
-    #    osm_id.append(osm_id_[i])
 
     # change coordinate refrence system
     # calculate geometry area
@@ -859,10 +866,11 @@ def get_buildingLayers(buildingShapefile):
         geometry_.append(geom)
 
     # create a dataframe of cleaned landuse layers
-    buildingLayers = pd.DataFrame(
-        #{"osm_id": osm_id, "building": building, "geometry": geometry_}
-        {"geometry": geometry_}
-    )
+    if osm_only:
+        buildingLayers = pd.DataFrame({"osm_id": osm_id, "building": building, "geometry": geometry_})
+    else:
+        buildingLayers = pd.DataFrame({"geometry": geometry_})
+
     #buildingLayers = buildingLayers.sort_values(by="building")
     return buildingLayers
 
@@ -913,15 +921,16 @@ def education(buildings_, out_dir):
     educational.to_csv(os.path.join(out_dir, "educational.csv"))
 
 
-def residential_building(buildings_, landuseShapefile, out_dir):
+def residential_building(buildings_, landuseShapefile, out_dir, osm_only):
     # Residential buildings
-
-    # buildings_ = get_buildingLayers(buildingShapefile)
-    #buildings = buildings_[
-    #    ~buildings_.building.isin(["kindergarten", "school", "university"])
-    #]
-    buildings = buildings_
-    landuses = get_landuseLayers(landuseShapefile)
+    if osm_only:
+        #buildings_ = get_buildingLayers(buildingShapefile)
+        buildings = buildings_[
+            ~buildings_.building.isin(["kindergarten", "school", "university"])
+        ]
+    else:
+        buildings = buildings_
+    landuses = get_landuseLayers(landuseShapefile, osm_only)
     landuseResidential = landuses[landuses.landuse == "residential"]
     residential = layersBuildings(
         landuseResidential, buildings, type="residential"
@@ -933,15 +942,16 @@ def residential_building(buildings_, landuseShapefile, out_dir):
     residential.to_csv(os.path.join(out_dir, "residential.csv"))
 
 
-def commercial_building(buildings_, landuseShapefile, out_dir):
+def commercial_building(buildings_, landuseShapefile, out_dir, osm_only):
     # Commercial buildings
-
-    # buildings_ = get_buildingLayers(buildingShapefile)
-    #buildings = buildings_[
-    #    ~buildings_.building.isin(["kindergarten", "school", "university"])
-    #]
-    buildings = buildings_
-    landuses = get_landuseLayers(landuseShapefile)
+    if osm_only:
+        #buildings_ = get_buildingLayers(buildingShapefile)
+        buildings = buildings_[
+        ~buildings_.building.isin(["kindergarten", "school", "university"])
+        ]
+    else:
+        buildings = buildings_
+    landuses = get_landuseLayers(landuseShapefile, osm_only)
     landusecomm = landuses[landuses.landuse.isin({"commercial", "retail"})]
     commercial = layersBuildings(landusecomm, buildings, type="commercial")
     commercial["geometry"] = commercial["geometry"].map(transformGeo)
@@ -951,20 +961,21 @@ def commercial_building(buildings_, landuseShapefile, out_dir):
     commercial.to_csv(os.path.join(out_dir, "commercial.csv"))
 
 
-def agricultural_building(buildings_, landuseShapefile, out_dir):
+def agricultural_building(buildings_, landuseShapefile, out_dir, osm_only):
     # Agricultural buildings
-
-    # buildings_ = get_buildingLayers(buildingShapefile)
-    #buildings = buildings_[
-    #    ~buildings_.building.isin(["kindergarten", "school", "university"])
-    #]
-    buildings = buildings_
-    landuses = get_landuseLayers(landuseShapefile)
-    land_agric = landuses[landuses.landuse == "agricultural"]
-        #landuses.landuse.isin(
-        #    {"farmyard", "farmland", "greenhouse_horticulture"}
-        #)
-    #]
+    landuses = get_landuseLayers(landuseShapefile, osm_only)
+    if osm_only:
+        #buildings_ = get_buildingLayers(buildingShapefile)
+        buildings = buildings_[
+            ~buildings_.building.isin(["kindergarten", "school", "university"])
+        ]
+        land_agric = landuses[
+        landuses.landuse.isin(
+            {"farmyard", "farmland", "greenhouse_horticulture"}
+        )]
+    else:
+        buildings = buildings_
+        land_agric = landuses[landuses.landuse == "agricultural"]
     agricultural = layersBuildings(land_agric, buildings, type="agricultural")
     agricultural["geometry"] = agricultural["geometry"].map(transformGeo)
     agricultural["area"] = agricultural["geometry"].map(computeArea)
@@ -975,15 +986,17 @@ def agricultural_building(buildings_, landuseShapefile, out_dir):
     agricultural.to_csv(os.path.join(out_dir, "agricultural.csv"))
 
 
-def industrial_building(buildings_, landuseShapefile, out_dir):
+def industrial_building(buildings_, landuseShapefile, out_dir, osm_only):
     # Industrial buildings
 
-    # buildings_ = get_buildingLayers(buildingShapefile)
-    #buildings = buildings_[
-    #    ~buildings_.building.isin(["kindergarten", "school", "university"])
-    #]
-    buildings = buildings_
-    landuses = get_landuseLayers(landuseShapefile)
+    if osm_only:
+        #buildings_ = get_buildingLayers(buildingShapefile)
+        buildings = buildings_[
+            ~buildings_.building.isin(["kindergarten", "school", "university"])
+        ]
+    else:
+        buildings = buildings_
+    landuses = get_landuseLayers(landuseShapefile, osm_only)
     landuseIndustrial = landuses[landuses.landuse == "industrial"]
     industrial = layersBuildings(
         landuseIndustrial, buildings, type="industrial"
@@ -995,15 +1008,16 @@ def industrial_building(buildings_, landuseShapefile, out_dir):
     industrial.to_csv(os.path.join(out_dir, "industrial.csv"))
 
 
-def building_layers(buildingShapefile, landuseShapefile, out_dir):
+def building_layers(buildingShapefile, landuseShapefile, out_dir, osm_only):
     # generate clusters of different features, out put are csv files
     try:
-        buildings_ = get_buildingLayers(buildingShapefile)
-        #education(buildings_, out_dir)
-        residential_building(buildings_, landuseShapefile, out_dir)
-        commercial_building(buildings_, landuseShapefile, out_dir)
-        agricultural_building(buildings_, landuseShapefile, out_dir)
-        industrial_building(buildings_, landuseShapefile, out_dir)
+        buildings_ = get_buildingLayers(buildingShapefile, osm_only)
+        if osm_only:
+            education(buildings_, out_dir)
+        residential_building(buildings_, landuseShapefile, out_dir, osm_only)
+        commercial_building(buildings_, landuseShapefile, out_dir, osm_only)
+        agricultural_building(buildings_, landuseShapefile, out_dir, osm_only)
+        industrial_building(buildings_, landuseShapefile, out_dir, osm_only)
 
         logging.info("Buildings categorization complete")
     except RuntimeError as e:

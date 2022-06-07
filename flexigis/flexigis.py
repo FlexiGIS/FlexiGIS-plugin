@@ -373,8 +373,11 @@ class flexigis:
         elif osm_tag == "landuse":
             landuse_cv_filenames = ['landuse.csv']
             if self.dlg2.checkBox_3.isChecked():  # Only process OSM data?
-                refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
-                #landuseLayers(os.path.join(landuse_input_file_name), out_file_dirname)
+                osm_convert(input_filename, out_file_dirname)
+                osm_filter(out_file_dirname, osm_tag, outfile_tag)
+                osm_shapefile(outfile_tag)
+                landuseLayers(os.path.join(
+                    outfile_tag, "multipolygons.shp"), out_file_dirname)
             else:  # Process EO data
                 refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
 

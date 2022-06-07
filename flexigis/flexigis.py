@@ -401,12 +401,13 @@ class flexigis:
                 osm_filter(out_file_dirname, "building", outfile_tag)
                 osm_shapefile(outfile_tag)
 
-            # landuse
-                refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
-                shape_to_csv(out_file_dirname, 'landuse.csv')
+                # landuse
+                osm_convert(input_filename, out_file_dirname)
+                osm_filter(out_file_dirname, "landuse", landuse_file_tag)
+                osm_shapefile(landuse_file_tag)
 
-                building_layers(buildings_input_file_name,
-                                os.path.join(out_file_dirname, "landuse.shp"), out_file_dirname)
+                building_layers(os.path.join(outfile_tag, "multipolygons.shp"),
+                                os.path.join(landuse_file_tag, "multipolygons.shp"), out_file_dirname)
             else:  # Process EO data only
                 # Generate landuse-data from input and export to shapefile
                 refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)

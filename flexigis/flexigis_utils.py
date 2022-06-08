@@ -746,7 +746,12 @@ def get_landuseLayers(landuseShapefile, osm_only):
         cluster = [
             "farmyard",
             "greenhouse_horticulture",
-            "farmland"]
+            "farmland",
+            "commercial",
+            "retail",
+            "industrial",
+            "residential"
+        ]
     else:
         landuseLayers = pd.DataFrame(
             {"landuse": landuse, "geometry": geometry_}

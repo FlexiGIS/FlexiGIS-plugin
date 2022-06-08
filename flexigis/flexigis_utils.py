@@ -702,9 +702,9 @@ def geoToAswkt(x):
     return x
 
 
-def landuseLayers(landuseShapefile, out_dir):
+def landuseLayers(landuseShapefile, out_dir, osm_only):
     """geoprocess landuse layer Tag and export as csv file."""
-    landuseLayers = get_landuseLayers(landuseShapefile)
+    landuseLayers = get_landuseLayers(landuseShapefile, osm_only)
     landuseLayers["geometry"] = landuseLayers.loc[:, "geometry"].map(
         transformGeo
     )
@@ -849,7 +849,7 @@ def get_buildingLayers(buildingShapefile, osm_only):
         ]
         building = [feature["building"] for feature in buildingLayer.getFeatures()]
 
-        replace NULL osm_id with the corresponding non NULL values from osm_way_id list
+        # replace NULL osm_id with the corresponding non NULL values from osm_way_id list
         osm_id = []
         for i in range(len(osm_id_)):
            if osm_id_[i] == NULL:

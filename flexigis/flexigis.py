@@ -378,7 +378,8 @@ class flexigis:
                 osm_filter(out_file_dirname, osm_tag, outfile_tag)
                 osm_shapefile(outfile_tag)
                 landuseLayers(os.path.join(
-                    outfile_tag, "multipolygons.shp"), out_file_dirname)
+                    outfile_tag, "multipolygons.shp"),
+                    out_file_dirname, use_osm_only)
             else:  # Process EO data
                 refactor_landuse(os.path.join(landuse_input_file_name), out_file_dirname, osm_tag)
 

@@ -784,7 +784,6 @@ def refactor_landuse(landuseShapefile, out_dir, flag='landuse'):
     # create a dataframe of cleaned landuse layers
     landuseLayers = pd.DataFrame(
         {
-            #'osm_id': osm_id_,
             'landuse': landuse,
             'geometry': geometry_
         }
@@ -929,16 +928,15 @@ def education(buildings_, out_dir):
 def residential_building(buildings_, landuseShapefile, out_dir, osm_only):
     # Residential buildings
     if osm_only:
-        #buildings_ = get_buildingLayers(buildingShapefile)
         buildings = buildings_[
             ~buildings_.building.isin(["kindergarten", "school", "university"])
         ]
     else:
         buildings = buildings_
     landuses = get_landuseLayers(landuseShapefile, osm_only)
-    landuseResidential = landuses[landuses.landuse == "residential"]
+    landuse_res = landuses[landuses.landuse == "residential"]
     residential = layersBuildings(
-        landuseResidential, buildings, type="residential"
+        landuse_res, buildings, type="residential"
     )
     residential["geometry"] = residential["geometry"].map(transformGeo)
     residential["area"] = residential["geometry"].map(computeArea)
@@ -950,15 +948,14 @@ def residential_building(buildings_, landuseShapefile, out_dir, osm_only):
 def commercial_building(buildings_, landuseShapefile, out_dir, osm_only):
     # Commercial buildings
     if osm_only:
-        #buildings_ = get_buildingLayers(buildingShapefile)
         buildings = buildings_[
         ~buildings_.building.isin(["kindergarten", "school", "university"])
         ]
     else:
         buildings = buildings_
     landuses = get_landuseLayers(landuseShapefile, osm_only)
-    landusecomm = landuses[landuses.landuse.isin({"commercial", "retail"})]
-    commercial = layersBuildings(landusecomm, buildings, type="commercial")
+    landuse_com = landuses[landuses.landuse.isin({"commercial", "retail"})]
+    commercial = layersBuildings(landuse_com, buildings, type="commercial")
     commercial["geometry"] = commercial["geometry"].map(transformGeo)
     commercial["area"] = commercial["geometry"].map(computeArea)
     commercial["geometry"] = commercial["geometry"].map(geoToAswkt)
@@ -970,18 +967,17 @@ def agricultural_building(buildings_, landuseShapefile, out_dir, osm_only):
     # Agricultural buildings
     landuses = get_landuseLayers(landuseShapefile, osm_only)
     if osm_only:
-        #buildings_ = get_buildingLayers(buildingShapefile)
         buildings = buildings_[
             ~buildings_.building.isin(["kindergarten", "school", "university"])
         ]
-        land_agric = landuses[
+        landuse_agri = landuses[
         landuses.landuse.isin(
             {"farmyard", "farmland", "greenhouse_horticulture"}
         )]
     else:
         buildings = buildings_
-        land_agric = landuses[landuses.landuse == "agricultural"]
-    agricultural = layersBuildings(land_agric, buildings, type="agricultural")
+        landuse_agri = landuses[landuses.landuse == "agricultural"]
+    agricultural = layersBuildings(landuse_agri, buildings, type="agricultural")
     agricultural["geometry"] = agricultural["geometry"].map(transformGeo)
     agricultural["area"] = agricultural["geometry"].map(computeArea)
     agricultural["geometry"] = agricultural["geometry"].map(geoToAswkt)
@@ -995,16 +991,15 @@ def industrial_building(buildings_, landuseShapefile, out_dir, osm_only):
     # Industrial buildings
 
     if osm_only:
-        #buildings_ = get_buildingLayers(buildingShapefile)
         buildings = buildings_[
             ~buildings_.building.isin(["kindergarten", "school", "university"])
         ]
     else:
         buildings = buildings_
     landuses = get_landuseLayers(landuseShapefile, osm_only)
-    landuseIndustrial = landuses[landuses.landuse == "industrial"]
+    landuse_ind = landuses[landuses.landuse == "industrial"]
     industrial = layersBuildings(
-        landuseIndustrial, buildings, type="industrial"
+        landuse_ind, buildings, type="industrial"
     )
     industrial["geometry"] = industrial["geometry"].map(transformGeo)
     industrial["area"] = industrial["geometry"].map(computeArea)

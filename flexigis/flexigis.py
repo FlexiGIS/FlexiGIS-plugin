@@ -371,7 +371,7 @@ class flexigis:
             self.iface.messageBar().pushMessage(
                 "Highway data geoprocessing complete.", level=Qgis.Success, duration=4)
 
-        elif osm_tag == "landuse":
+        elif osm_tag == "landuse":  # das hier ist ein Test
             landuse_cv_filenames = ['landuse.csv']
             if use_osm_only:  # Only process OSM data?
                 osm_convert(input_filename, out_file_dirname)

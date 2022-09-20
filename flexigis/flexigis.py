@@ -302,7 +302,17 @@ class flexigis:
         self.shp_file = input_file[0]
         self.dlg2.lineEdit5_2.setText(self.shp_file)
 
-    def on_b6_click(self):
+    def selectOut_dir(self):  # Function selects output directory for categorizing data --> connected to b2_2
+        out_dir = str(QFileDialog.getExistingDirectory(
+            self.dlg2, "Select directory"))
+        self.dlg2.lineEdit2_2.setText(out_dir)
+
+    def selectOut_dir2(self):  # Function selects source directory for exporting layers --> connected to b11_2
+        out_dir = str(QFileDialog.getExistingDirectory(
+            self.dlg2, "Select directory"))
+        self.dlg2.lineEdit3_2.setText(out_dir)
+
+    def on_b2_2_click(self):
         msg = QMessageBox()
         msg.setWindowTitle("Info")
         if os.path.isfile(self.dlg2.lineEdit1_2.text()):
@@ -326,10 +336,7 @@ class flexigis:
             msg.buttonClicked.connect(self.popup_button_block2)
             _ = msg.exec_()
 
-    def on_text_changed_b6(self):
-        self.dlg2.b2_2.setEnabled(bool(self.dlg2.lineEdit1_2.text()))
-
-    def on_text_changed_b7(self):
+    def on_text_changed_b3_2(self):
         self.dlg2.b3_2.setEnabled(bool(self.dlg2.lineEdit2_2.text()))
 
 
@@ -611,16 +618,17 @@ class flexigis:
 
         # window 2
         self.dlg2 = Geoprocess_Dialog()
-        self.dlg2.b2_2.setEnabled(False)
+        self.dlg2.b2_2.setEnabled(True)
         self.dlg2.b3_2.setEnabled(False)
         self.dlg2.b4_2.setEnabled(False)
-        self.dlg2.lineEdit1_2.textChanged.connect(self.on_text_changed_b6)
-        self.dlg2.lineEdit2_2.textChanged.connect(self.on_text_changed_b7)
+        #self.dlg2.lineEdit1_2.textChanged.connect(self.on_text_changed_b2_2)
+        self.dlg2.lineEdit2_2.textChanged.connect(self.on_text_changed_b3_2)
         self.dlg2.b1_2.clicked.connect(self.select_pbf_block2)
-        self.dlg2.b2_2.clicked.connect(self.on_b6_click)
+        self.dlg2.b2_2.clicked.connect(self.selectOut_dir)  #(self.on_b2_2_click)
         self.dlg2.b3_2.clicked.connect(self.on_b3_2_click)
         self.dlg2.b9_2.clicked.connect(self.select_shp_block2)
         self.dlg2.b10_2.clicked.connect(self.select_shp2_block2)
+        self.dlg2.b11_2.clicked.connect(self.selectOut_dir2)
         self.dlg2.checkBox.stateChanged.connect(self.checkBox_click)
         self.dlg2.checkBox_2.stateChanged.connect(self.checkBox2_click)
         self.dlg2.b4_2.clicked.connect(self.on_click_b4_2)

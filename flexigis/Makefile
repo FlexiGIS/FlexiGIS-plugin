@@ -1,7 +1,7 @@
 #/***************************************************************************
-# flexgi_test
+# flexgis
 #
-# This is a test plugin for flexigis
+# This is a plugin for flexigis
 #							 -------------------
 #		begin				: 2020-09-16
 #		git sha				: $Format:%H$
@@ -38,15 +38,15 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	flexgi_test.py flexgi_test_dialog.py
+	flexgis.py flexgis_dialog.py
 
-PLUGINNAME = flexgi_test
+PLUGINNAME = flexgis
 
 PY_FILES = \
 	__init__.py \
-	flexgi_test.py flexgi_test_dialog.py
+	flexgis.py flexgis_dialog.py
 
-UI_FILES = flexgi_test_dialog_base.ui
+UI_FILES = flexgis_dialog_base.ui
 
 EXTRAS = metadata.txt flexigis.png
 
@@ -65,7 +65,7 @@ PEP8EXCLUDE=pydev,resources.py,conf.py,third_party,ui
 #	* Windows:
 #	  AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins'
 
-QGISDIR=/home/nonso/.local/share/QGIS/QGIS3/profiles/default/python/plugins/
+QGISDIR=/path/to/QGIS/plugins
 
 #################################################
 # Normally you would not need to edit below here

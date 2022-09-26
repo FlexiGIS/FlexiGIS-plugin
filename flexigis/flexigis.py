@@ -526,6 +526,7 @@ class flexigis:
         layer_dir = self.dlg3.lineEdit5_3.text()
         folder_name = "demand_profile"
         new_dir = os.path.join(in_dir, folder_name)
+        use_osm_only = self.dlg3.checkBox.isChecked()
 
         if Path(new_dir).exists():
             pass
@@ -552,13 +553,13 @@ class flexigis:
         elif self.dlg3.comboBox1_3.currentText() == "Urban infrastructure elect. demand":
             if os.path.isfile(slp_path) and os.path.isdir(layer_dir):
                 if pv_path == "" or wind_path == "":
-                    simulate_urban_demand(slp_path, layer_dir, new_dir)
+                    simulate_urban_demand(slp_path, layer_dir, new_dir, use_osm_only)
                     self.iface.messageBar().pushMessage(
                         "Urban building electricity demand simulation done!", level=Qgis.Success, duration=4)
                 elif os.path.isfile(pv_path) and os.path.isfile(wind_path):
-                    simulate_urban_demand(slp_path, layer_dir, new_dir)
+                    simulate_urban_demand(slp_path, layer_dir, new_dir, use_osm_only)
                     pv_feedin_generation(
-                        pv_path, wind_path, layer_dir, new_dir)
+                        pv_path, wind_path, layer_dir, new_dir, use_osm_only)
                     self.iface.messageBar().pushMessage(
                         "Urban building electricity demand and renewable generation simulation done!", level=Qgis.Success, duration=4)
                 else:

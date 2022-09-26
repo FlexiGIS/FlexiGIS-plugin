@@ -490,7 +490,7 @@ def optimizationCommodities(input_path, input_path2, output_path):
 
 
 def simulate_urban_demand(
-    input_destination1, input_destination2, output_destination
+    input_destination1, input_destination2, output_destination, osm_only
 ):
     """Simulate urban building infrastructure electricity demand for different infrastructure
     clusters. The urban buildings are clustered into 5 different categories
@@ -504,9 +504,9 @@ def simulate_urban_demand(
 
     dfa = pd.read_csv(os.path.join(input_destination2, "agricultural.csv"))
     dfc = pd.read_csv(os.path.join(input_destination2, "commercial.csv"))
-    dfe = pd.read_csv(os.path.join(input_destination2, "educational.csv"))
     dfi = pd.read_csv(os.path.join(input_destination2, "industrial.csv"))
     dfr = pd.read_csv(os.path.join(input_destination2, "residential.csv"))
+
     # get standaerd load profile
     df_SLP = pd.read_csv(input_destination1)
     norm_ = 1000
@@ -515,8 +515,13 @@ def simulate_urban_demand(
     load_a = (df_SLP["L0"] / norm_) * dfa.area.sum() * (120 / norm_)
     load_i = dfi.area.sum() * (645 / norm_) * df_SLP["G3"] / norm_
     load_c = dfc.area.sum() * (201 / norm_) * df_SLP["G0"] / norm_
-    load_e = dfe.area.sum() * (142 / norm_) * (df_SLP["G1"] / norm_)
     load_r = dfr.area.sum() * (df_SLP["H0"] / norm_) * (146 / norm_)
+
+    if osm_only:
+        dfe = pd.read_csv(os.path.join(input_destination2, "educational.csv"))
+        load_e = dfe.area.sum() * (142 / norm_) * (df_SLP["G1"] / norm_)
+    else:
+        load_e = 0 * df_SLP["G1"]  # since no building data is available
 
     demand_ = pd.DataFrame(
         {
@@ -538,6 +543,7 @@ def pv_feedin_generation(
     input_destination2,
     input_destination3,
     output_destination,
+    osm_only
 ):
     """
     Calculate renewable generation of the building. The solar PV roof top generation is calculated.
@@ -546,13 +552,15 @@ def pv_feedin_generation(
 
     dfa = pd.read_csv(os.path.join(input_destination3, "agricultural.csv"))
     dfc = pd.read_csv(os.path.join(input_destination3, "commercial.csv"))
-    dfe = pd.read_csv(os.path.join(input_destination3, "educational.csv"))
     dfi = pd.read_csv(os.path.join(input_destination3, "industrial.csv"))
     dfr = pd.read_csv(os.path.join(input_destination3, "residential.csv"))
 
     area_a, area_c = dfa["area"].sum(), dfc["area"].sum()
-    area_e, area_i = dfe["area"].sum(), dfi["area"].sum()
-    area_r = dfr["area"].sum()
+    area_i, area_r = dfi["area"].sum(), dfr["area"].sum()
+
+    if osm_only:  # Include educational category
+        dfe = pd.read_csv(os.path.join(input_destination3, "educational.csv"))
+        area_e = dfe["area"].sum()
 
     pv_peak_power = 206.7989
     pv_module_area = 1.646
@@ -568,8 +576,12 @@ def pv_feedin_generation(
 
     # roof top area for pv installation
     areaRoof_a, areaRoof_c = area_a * 0.267, area_c * 0.267
-    areaRoof_e, areaRoof_i = area_e * 0.267, area_i * 0.267
-    areaRoof_r = area_r * 0.578
+    areaRoof_i, areaRoof_r = area_i * 0.267, area_r * 0.578
+
+    if osm_only:
+        areaRoof_e = area_e * 0.267
+    else:
+        areaRoof_e = 0
 
     # calculate aggregate peak power at rooftop
     total_roof_to_area = (

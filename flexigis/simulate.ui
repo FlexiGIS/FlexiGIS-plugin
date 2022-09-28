@@ -328,7 +328,7 @@
          </font>
         </property>
         <property name="text">
-         <string>OSM data only?</string>
+         <string>Use EO data?</string>
         </property>
        </widget>
       </item>

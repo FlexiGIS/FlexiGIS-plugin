@@ -571,7 +571,7 @@ def pv_feedin_generation(
 
     pv_feedin = pv_feedin.reindex()
     time_stamp = pv_feedin[["time"]]
-    pv_data = pv_feedin["pv"]
+    pv_data = pv_feedin[["pv"]]
     wind_power_data = wind_feedin["wind"]
 
     # roof top area for pv installation

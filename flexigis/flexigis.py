@@ -343,40 +343,43 @@ class flexigis:
     def on_b3_2_click(self):
         msg = QMessageBox()
         msg.setWindowTitle("OSM geoprocessing")
+        osm_tag = self.dlg2.comboBox1_2.currentText()  # -> "building", "highway", "landuse"
+
+        # Variables/paths for Open Street Map data processing
         input_filename = self.dlg2.lineEdit1_2.text()  # Filename of PBF-File
         input_file_dirname = os.path.split(input_filename)[0]
-        # out_file = os.path.basename(self.dlg.lineEdit_5.text())
         out_file_dirname = self.dlg2.lineEdit2_2.text()  # Directory of Outputs
-        osm_tag = self.dlg2.comboBox1_2.currentText()  # -> "building", "highway", "landuse"
         outfile_tag = os.path.join(input_file_dirname, osm_tag)
+
+        # Variables/paths for earth observation data processing
         landuse_file_tag = os.path.join(input_file_dirname, 'landuse')
-        landuse_out_tag = os.path.join(input_file_dirname, 'landuse')
         landuse_input_file_name = self.dlg2.lineEdit4_2.text()  # Input of EO landuse data
         buildings_input_file_name = self.dlg2.lineEdit5_2.text()  # Input of EO building data
-        use_osm_only = self.dlg2.checkBox_3.isChecked()
+        use_osm_only = not self.dlg2.checkBox_3.isChecked()
 
-        #TODO: check out_file and Out_dir ==> make the naming less redundant!
         if osm_tag == "highway":
-            highway_cv_filenames = ['highway_squares.csv', 'highway_lines.csv']
-            osm_convert(input_filename, out_file_dirname)
-            osm_filter(out_file_dirname, osm_tag, outfile_tag)
-            osm_shapefile(outfile_tag)
-            filter_lines(os.path.join(
-                outfile_tag, "lines.shp"), out_file_dirname)
-            filter_squares(os.path.join(
-                outfile_tag, "multipolygons.shp"), out_file_dirname)
-    #         # filter_highway_points(os.path.join(
-    #         #     osm_tag, "points.shp"), os.path.join(out_file, "highway_points"))
-            if self.dlg2.comboBox2_2.currentText() == "":
-                self.dlg2.comboBox2_2.addItems(
-                    [layer for layer in csvLayerNames(out_file_dirname)])
-            elif all(item in [self.dlg2.comboBox2_2.itemText(i) for i in range(self.dlg2.comboBox2_2.count())] for item in highway_cv_filenames):
-                pass
+            if use_osm_only:
+                highway_cv_filenames = ['highway_squares.csv', 'highway_lines.csv']
+                osm_convert(input_filename, out_file_dirname)
+                osm_filter(out_file_dirname, osm_tag, outfile_tag)
+                osm_shapefile(outfile_tag)
+                filter_lines(os.path.join(
+                    outfile_tag, "lines.shp"), out_file_dirname)
+                filter_squares(os.path.join(
+                    outfile_tag, "multipolygons.shp"), out_file_dirname)
+                if self.dlg2.comboBox2_2.currentText() == "":
+                    self.dlg2.comboBox2_2.addItems(
+                        [layer for layer in csvLayerNames(out_file_dirname)])
+                elif all(item in [self.dlg2.comboBox2_2.itemText(i) for i in range(self.dlg2.comboBox2_2.count())] for item in highway_cv_filenames):
+                    pass
+                else:
+                    self.dlg2.comboBox2_2.addItems(
+                        [layer for layer in csvLayerNames(out_file_dirname) if layer in highway_cv_filenames])
+                self.iface.messageBar().pushMessage(
+                    "Highway data geoprocessing complete.", level=Qgis.Success, duration=4)
             else:
-                self.dlg2.comboBox2_2.addItems(
-                    [layer for layer in csvLayerNames(out_file_dirname) if layer in highway_cv_filenames])
-            self.iface.messageBar().pushMessage(
-                "Highway data geoprocessing complete.", level=Qgis.Success, duration=4)
+                self.iface.messageBar().pushMessage(
+                    "Highway data processing not supported by earth observation data!", level=Qgis.Critical, duration=4)
 
         elif osm_tag == "landuse":  # das hier ist ein Test
             landuse_cv_filenames = ['landuse.csv']
@@ -403,6 +406,8 @@ class flexigis:
                 "Landuse data geoprocessing complete.", level=Qgis.Success, duration=4)
 
         elif osm_tag == "building":
+            # Next: Include check if lineEdit1_2 or lineEdit4_2 and -5_2 are filled. If NOT: Critical Warning
+
             building_cv_filenames = ['agricultural.csv', 'commercial.csv',
                                         'educational.csv', 'industrial.csv', 'residential.csv']
             if use_osm_only:  # Only process OSM data?
@@ -456,6 +461,14 @@ class flexigis:
             self.dlg2.checkBox.setChecked(False)
         if self.dlg2.comboBox2_2.currentText() != "":
             self.dlg2.b4_2.setEnabled(bool(self.dlg2.lineEdit3_2.text()))
+
+    def checkBox3_click(self):
+        if self.dlg2.checkBox_3.isChecked():
+            self.dlg2.lineEdit1_2.setEnabled(False)
+            self.dlg2.b1_2.setEnabled(False)
+        else:
+            self.dlg2.lineEdit1_2.setEnabled(True)
+            self.dlg2.b1_2.setEnabled(True)
 
     def on_click_b4_2(self):
         if self.dlg2.checkBox.isChecked():
@@ -526,29 +539,33 @@ class flexigis:
         layer_dir = self.dlg3.lineEdit5_3.text()
         folder_name = "demand_profile"
         new_dir = os.path.join(in_dir, folder_name)
-        use_osm_only = self.dlg3.checkBox.isChecked()
+        use_osm_only = not self.dlg3.checkBox.isChecked()
 
         if Path(new_dir).exists():
             pass
         else:
             os.mkdir(new_dir)
         if self.dlg3.comboBox1_3.currentText() == "Street light elect. demand":
-            if os.path.isfile(slp_path) and os.path.isdir(layer_dir):
-                if pv_path == "" or wind_path == "":
-                    streetLightDemnd(slp_path, layer_dir, new_dir)
-                    self.iface.messageBar().pushMessage(
-                        "Street light elect. demand simulation done!", level=Qgis.Success, duration=4)
-                elif os.path.isfile(pv_path) and os.path.isfile(wind_path):
-                    streetLightDemnd(slp_path, layer_dir, new_dir)
-                    optimizationCommodities(pv_path, wind_path, new_dir)
-                    self.iface.messageBar().pushMessage(
-                        "Street light elect. demand simulation done!", level=Qgis.Success, duration=4)
+            if use_osm_only:
+                if os.path.isfile(slp_path) and os.path.isdir(layer_dir):
+                    if pv_path == "" or wind_path == "":
+                        streetLightDemnd(slp_path, layer_dir, new_dir)
+                        self.iface.messageBar().pushMessage(
+                            "Street light elect. demand simulation done!", level=Qgis.Success, duration=4)
+                    elif os.path.isfile(pv_path) and os.path.isfile(wind_path):
+                        streetLightDemnd(slp_path, layer_dir, new_dir)
+                        optimizationCommodities(pv_path, wind_path, new_dir)
+                        self.iface.messageBar().pushMessage(
+                            "Street light elect. demand simulation done!", level=Qgis.Success, duration=4)
+                    else:
+                        self.iface.messageBar().pushMessage(
+                            "Ensure selected file paths exit!", level=Qgis.Critical, duration=4)
                 else:
                     self.iface.messageBar().pushMessage(
-                        "Ensure selected file paths exit!", level=Qgis.Critical, duration=4)
+                        "Ensure selected file paths and Layer directory path exit!", level=Qgis.Critical, duration=4)
             else:
                 self.iface.messageBar().pushMessage(
-                    "Ensure selected file paths and Layer directory path exit!", level=Qgis.Critical, duration=4)
+                    "Street light demand simulation not supported by earth observation data!", level=Qgis.Critical, duration=4)
 
         elif self.dlg3.comboBox1_3.currentText() == "Urban infrastructure elect. demand":
             if os.path.isfile(slp_path) and os.path.isdir(layer_dir):
@@ -632,6 +649,7 @@ class flexigis:
         self.dlg2.b11_2.clicked.connect(self.selectOut_dir2)
         self.dlg2.checkBox.stateChanged.connect(self.checkBox_click)
         self.dlg2.checkBox_2.stateChanged.connect(self.checkBox2_click)
+        self.dlg2.checkBox_3.stateChanged.connect(self.checkBox3_click)
         self.dlg2.b4_2.clicked.connect(self.on_click_b4_2)
         self.dlg2.b5_2.clicked.connect(self.help_page)
 

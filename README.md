@@ -54,7 +54,8 @@ To reload plugin go to the plugin reloader icon, click on the drop down menu, se
 
 ## License
 
-FlexiGIS-Plugin is licensed under the [BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause), "New BSD License" or "Modified BSD License".
+FlexiGIS-Plugin is licensed under the [BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause), "New BSD License" or "Modified BSD License". 
+![FlexiGIS Simulated Energy_requirements](FlexiGIS.png)
 
 Please see the file [LICENSE.md](LICENSE.md) for further information about how the content is licensed.
 
